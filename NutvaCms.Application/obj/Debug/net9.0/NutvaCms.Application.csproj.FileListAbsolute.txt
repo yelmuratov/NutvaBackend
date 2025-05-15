@@ -13,3 +13,4 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Application\obj\Debug\net9.0\NutvaC
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Application\obj\Debug\net9.0\refint\NutvaCms.Application.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Application\obj\Debug\net9.0\NutvaCms.Application.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Application\obj\Debug\net9.0\ref\NutvaCms.Application.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Application\obj\Debug\net9.0\NutvaCms.Application.sourcelink.json

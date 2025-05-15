@@ -9,4 +9,6 @@ public class AppDbContext : DbContext
 
     public DbSet<Blog> Blogs => Set<Blog>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<Banner> Banners => Set<Banner>();
+    public DbSet<Admin> Admins => Set<Admin>();
 }

@@ -17,3 +17,4 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\refint
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.genruntimeconfig.cache
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\ref\NutvaCms.Persistence.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.sourcelink.json

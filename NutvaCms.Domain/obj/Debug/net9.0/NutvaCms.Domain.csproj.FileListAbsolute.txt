@@ -9,3 +9,4 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Do
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\refint\NutvaCms.Domain.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\ref\NutvaCms.Domain.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.sourcelink.json

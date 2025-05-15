@@ -17,3 +17,4 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Infrastructure\obj\Debug\net9.0\Nut
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Infrastructure\obj\Debug\net9.0\refint\NutvaCms.Infrastructure.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Infrastructure\obj\Debug\net9.0\NutvaCms.Infrastructure.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Infrastructure\obj\Debug\net9.0\ref\NutvaCms.Infrastructure.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Infrastructure\obj\Debug\net9.0\NutvaCms.Infrastructure.sourcelink.json

@@ -175,3 +175,5 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\refint\NutvaCm
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\NutvaCms.API.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\NutvaCms.API.genruntimeconfig.cache
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\ref\NutvaCms.API.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\NutvaCms.API.sourcelink.json
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\BCrypt.Net-Next.dll
