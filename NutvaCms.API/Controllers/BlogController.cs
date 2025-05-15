@@ -34,7 +34,8 @@ public class BlogController : ControllerBase
     // Only logged-in admins can create blogs
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Create([FromBody] BlogDto dto)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Create([FromForm] BlogDto dto)
     {
         var created = await _blogService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -43,7 +44,8 @@ public class BlogController : ControllerBase
     // Only logged-in admins can update blogs
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> Update(Guid id, [FromBody] BlogDto dto)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Update(Guid id, [FromForm] BlogDto dto)
     {
         var updated = await _blogService.UpdateAsync(id, dto);
         return updated is null ? NotFound() : Ok(updated);
@@ -57,4 +59,12 @@ public class BlogController : ControllerBase
         var deleted = await _blogService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
+
+    [HttpPost("view/{id}")]
+    public async Task<IActionResult> TrackView(Guid id)
+    {
+        await _blogService.IncrementViewAsync(id);
+        return Ok(new { message = "Blog view tracked." });
+    }
+
 }

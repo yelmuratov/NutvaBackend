@@ -34,25 +34,27 @@ public class BannerController : ControllerBase
         return banner is null ? NotFound() : Ok(banner);
     }
 
-    // Authenticated admins only can create
+    // Authenticated admins only - create a banner
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Create([FromBody] BannerDto dto)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Create([FromForm] BannerDto dto)
     {
         var created = await _bannerService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    // Authenticated admins only can update
+    // Authenticated admins only - update a banner
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> Update(Guid id, [FromBody] BannerDto dto)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Update(Guid id, [FromForm] BannerDto dto)
     {
         var updated = await _bannerService.UpdateAsync(id, dto);
         return updated is null ? NotFound() : Ok(updated);
     }
 
-    // Authenticated admins only can delete
+    // Authenticated admins only - delete a banner
     [HttpDelete("{id}")]
     [Authorize]
     public async Task<IActionResult> Delete(Guid id)
