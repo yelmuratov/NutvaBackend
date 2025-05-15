@@ -1,0 +1,6 @@
+@NutvaCms.API_HostAddress = http://localhost:5286
+
+GET {{NutvaCms.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
