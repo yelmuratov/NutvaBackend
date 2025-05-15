@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 namespace NutvaCms.Application.DTOs;
 
 public class BlogDto
@@ -9,5 +10,6 @@ public class BlogDto
     public string MetaDescription { get; set; } = null!;
     public string MetaKeywords { get; set; } = null!;
 
-    public List<string>? ImageUrls { get; set; } 
+    public List<IFormFile>? Images { get; set; } // uploaded images
 }
+

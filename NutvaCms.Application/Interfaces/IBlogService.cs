@@ -10,4 +10,5 @@ public interface IBlogService
     Task<Blog> CreateAsync(BlogDto dto);
     Task<Blog?> UpdateAsync(Guid id, BlogDto dto);
     Task<bool> DeleteAsync(Guid id);
+    Task IncrementViewAsync(Guid id);
 }

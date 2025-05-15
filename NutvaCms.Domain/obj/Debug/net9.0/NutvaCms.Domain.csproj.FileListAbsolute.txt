@@ -5,8 +5,8 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Do
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.AssemblyInfoInputs.cache
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.AssemblyInfo.cs
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.csproj.CoreCompileInputs.cache
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.sourcelink.json
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\refint\NutvaCms.Domain.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\ref\NutvaCms.Domain.dll
-C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Domain\obj\Debug\net9.0\NutvaCms.Domain.sourcelink.json

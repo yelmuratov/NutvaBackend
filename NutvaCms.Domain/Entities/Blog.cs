@@ -1,5 +1,4 @@
 namespace NutvaCms.Domain.Entities;
-
 public class Blog
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -10,6 +9,6 @@ public class Blog
     public string MetaDescription { get; set; } = null!;
     public string MetaKeywords { get; set; } = null!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public ICollection<BlogImage> Images { get; set; } = new List<BlogImage>();
+    public int ViewCount { get; set; } = 0;
+    public List<string> ImageUrls { get; set; } = new(); 
 }

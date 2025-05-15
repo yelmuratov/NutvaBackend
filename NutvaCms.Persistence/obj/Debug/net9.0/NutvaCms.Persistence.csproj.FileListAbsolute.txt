@@ -11,10 +11,10 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaC
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.AssemblyInfoInputs.cache
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.AssemblyInfo.cs
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.csproj.CoreCompileInputs.cache
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.sourcelink.json
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.D1E36430.Up2Date
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\refint\NutvaCms.Persistence.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.genruntimeconfig.cache
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\ref\NutvaCms.Persistence.dll
-C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.Persistence\obj\Debug\net9.0\NutvaCms.Persistence.sourcelink.json

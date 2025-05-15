@@ -7,10 +7,12 @@ namespace NutvaCms.Application.Services;
 public class BlogService : IBlogService
 {
     private readonly IBlogRepository _repo;
+    private readonly IFileService _fileService;
 
-    public BlogService(IBlogRepository repo)
+    public BlogService(IBlogRepository repo, IFileService fileService)
     {
         _repo = repo;
+        _fileService = fileService;
     }
 
     public Task<IEnumerable<Blog>> GetAllAsync() => _repo.GetAllAsync();
@@ -19,6 +21,10 @@ public class BlogService : IBlogService
 
     public async Task<Blog> CreateAsync(BlogDto dto)
     {
+        var urls = dto.Images != null && dto.Images.Any()
+            ? await _fileService.UploadManyAsync(dto.Images)
+            : new List<string>();
+
         var blog = new Blog
         {
             Title = dto.Title,
@@ -27,7 +33,7 @@ public class BlogService : IBlogService
             MetaTitle = dto.MetaTitle,
             MetaDescription = dto.MetaDescription,
             MetaKeywords = dto.MetaKeywords,
-            Images = dto.ImageUrls?.Select(url => new BlogImage { ImageUrl = url }).ToList() ?? new()
+            ImageUrls = urls
         };
 
         await _repo.AddAsync(blog);
@@ -45,7 +51,12 @@ public class BlogService : IBlogService
         blog.MetaTitle = dto.MetaTitle;
         blog.MetaDescription = dto.MetaDescription;
         blog.MetaKeywords = dto.MetaKeywords;
-        blog.Images = dto.ImageUrls?.Select(url => new BlogImage { ImageUrl = url }).ToList() ?? new();
+
+        if (dto.Images != null && dto.Images.Any())
+        {
+            var urls = await _fileService.UploadManyAsync(dto.Images);
+            blog.ImageUrls = urls;
+        }
 
         await _repo.UpdateAsync(blog);
         return blog;
@@ -59,4 +70,10 @@ public class BlogService : IBlogService
         await _repo.DeleteAsync(blog);
         return true;
     }
+
+    public async Task IncrementViewAsync(Guid id)
+    {
+        await _repo.IncrementViewAsync(id);
+    }
+
 }

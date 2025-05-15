@@ -56,6 +56,10 @@ namespace NutvaCms.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ImageUrls")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Link")
                         .IsRequired()
                         .HasColumnType("text");
@@ -85,26 +89,6 @@ namespace NutvaCms.Persistence.Migrations
                     b.ToTable("Banners");
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.BannerImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("BannerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BannerId");
-
-                    b.ToTable("BannerImage");
-                });
-
             modelBuilder.Entity("NutvaCms.Domain.Entities.Blog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -117,6 +101,10 @@ namespace NutvaCms.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImageUrls")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("MetaDescription")
                         .IsRequired()
@@ -138,29 +126,12 @@ namespace NutvaCms.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Blogs");
-                });
-
-            modelBuilder.Entity("NutvaCms.Domain.Entities.BlogImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("BlogId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlogId");
-
-                    b.ToTable("BlogImage");
                 });
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>
@@ -169,10 +140,17 @@ namespace NutvaCms.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("BuyClickCount")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrls")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -199,77 +177,93 @@ namespace NutvaCms.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.ProductImage", b =>
+            modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("BuyerName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImage");
+                    b.ToTable("PurchaseRequests");
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.BannerImage", b =>
+            modelBuilder.Entity("NutvaCms.Domain.Entities.SiteStatistic", b =>
                 {
-                    b.HasOne("NutvaCms.Domain.Entities.Banner", "Banner")
-                        .WithMany("Images")
-                        .HasForeignKey("BannerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Navigation("Banner");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TotalVisits")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SiteStatistics");
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.BlogImage", b =>
+            modelBuilder.Entity("NutvaCms.Domain.Entities.TrackingPixel", b =>
                 {
-                    b.HasOne("NutvaCms.Domain.Entities.Blog", "Blog")
-                        .WithMany("Images")
-                        .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Navigation("Blog");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Script")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TrackingPixels");
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.ProductImage", b =>
+            modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequest", b =>
                 {
                     b.HasOne("NutvaCms.Domain.Entities.Product", "Product")
-                        .WithMany("Images")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("NutvaCms.Domain.Entities.Banner", b =>
-                {
-                    b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("NutvaCms.Domain.Entities.Blog", b =>
-                {
-                    b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>
-                {
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

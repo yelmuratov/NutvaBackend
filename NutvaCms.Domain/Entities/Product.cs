@@ -11,6 +11,7 @@ public class Product
     public string MetaDescription { get; set; } = null!;
     public string MetaKeywords { get; set; } = null!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+    public int ViewCount { get; set; } = 0;
+    public int BuyClickCount { get; set; } = 0;
+    public List<string> ImageUrls { get; set; } = new();
 }

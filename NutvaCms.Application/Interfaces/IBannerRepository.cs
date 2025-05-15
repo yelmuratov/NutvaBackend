@@ -8,5 +8,6 @@ public interface IBannerRepository
     Task<Banner?> GetByIdAsync(Guid id);
     Task AddAsync(Banner banner);
     Task UpdateAsync(Banner banner);
-    Task DeleteAsync(Banner banner);
+    Task DeleteAsync(Guid id);
 }
+

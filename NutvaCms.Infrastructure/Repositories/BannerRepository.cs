@@ -7,34 +7,48 @@ namespace NutvaCms.Infrastructure.Repositories;
 
 public class BannerRepository : IBannerRepository
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _context;
 
-    public BannerRepository(AppDbContext db)
+    public BannerRepository(AppDbContext context)
     {
-        _db = db;
+        _context = context;
     }
 
     public async Task<IEnumerable<Banner>> GetAllAsync() =>
-        await _db.Banners.Include(b => b.Images).ToListAsync();
+        await _context.Banners.ToListAsync(); // No .Include(b => b.Images) needed
 
     public async Task<Banner?> GetByIdAsync(Guid id) =>
-        await _db.Banners.Include(b => b.Images).FirstOrDefaultAsync(b => b.Id == id);
+        await _context.Banners.FirstOrDefaultAsync(b => b.Id == id);
 
     public async Task AddAsync(Banner banner)
     {
-        _db.Banners.Add(banner);
-        await _db.SaveChangesAsync();
+        await _context.Banners.AddAsync(banner);
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(Banner banner)
     {
-        _db.Banners.Update(banner);
-        await _db.SaveChangesAsync();
+        var existing = await _context.Banners.FirstOrDefaultAsync(b => b.Id == banner.Id);
+        if (existing is null)
+            throw new InvalidOperationException($"Banner with ID {banner.Id} not found");
+
+        existing.Title = banner.Title;
+        existing.Subtitle = banner.Subtitle;
+        existing.Link = banner.Link;
+        existing.MetaTitle = banner.MetaTitle;
+        existing.MetaDescription = banner.MetaDescription;
+        existing.ImageUrls = banner.ImageUrls;
+
+        await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(Banner banner)
+    public async Task DeleteAsync(Guid id)
     {
-        _db.Banners.Remove(banner);
-        await _db.SaveChangesAsync();
+        var banner = await _context.Banners.FindAsync(id);
+        if (banner != null)
+        {
+            _context.Banners.Remove(banner);
+            await _context.SaveChangesAsync();
+        }
     }
 }

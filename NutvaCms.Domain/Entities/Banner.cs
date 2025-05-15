@@ -11,5 +11,5 @@ public class Banner
     public string MetaKeywords { get; set; } = null!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public ICollection<BannerImage> Images { get; set; } = new List<BannerImage>();
+    public List<string> ImageUrls { get; set; } = new(); 
 }

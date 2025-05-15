@@ -10,4 +10,6 @@ public interface IProductService
     Task<Product> CreateAsync(ProductDto dto);
     Task<Product?> UpdateAsync(Guid id, ProductDto dto);
     Task<bool> DeleteAsync(Guid id);
+    Task IncrementViewAsync(Guid id);
+    Task IncrementBuyClickAsync(Guid id); 
 }
