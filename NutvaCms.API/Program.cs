@@ -24,7 +24,6 @@ static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
 {
     var uri = new Uri(databaseUrl);
     var userInfo = uri.UserInfo.Split(':');
-
     return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
 }
 
@@ -32,11 +31,9 @@ static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
 // Configure Services
 // =========================
 
-// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Repositories
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
@@ -44,7 +41,6 @@ builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddScoped<ITrackingPixelRepository, TrackingPixelRepository>();
 
-// Services
 builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
@@ -56,10 +52,8 @@ builder.Services.AddHttpClient<IBitrixService, BitrixService>();
 builder.Services.AddScoped<ITrackingPixelService, TrackingPixelService>();
 builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
 
-// Utilities
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-// Authentication
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
@@ -75,10 +69,8 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAuthorization();
 
-// Controllers
 builder.Services.AddControllers();
 
-// Swagger with JWT Bearer Support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -130,6 +122,18 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     });
 }
 
+// Custom domain redirect to HTTPS version
+app.Use(async (context, next) =>
+{
+    var host = context.Request.Host.Host;
+    if (host == "nutvahealth.uz")
+    {
+        context.Response.Redirect("https://www.nutvahealth.uz" + context.Request.Path + context.Request.QueryString);
+        return;
+    }
+    await next();
+});
+
 app.UseMiddleware<JwtBlacklistMiddleware>();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
@@ -137,7 +141,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Seed SuperAdmin
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
