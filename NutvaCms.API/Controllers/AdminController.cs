@@ -39,17 +39,26 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         if (!await IsSuperAdmin())
-            return Forbid("Only superadmins can view all admins.");
+            return StatusCode(403, new
+            {
+                error = "Forbidden",
+                message = "Only superadmins can view all admins."
+            });
 
         var admins = await _adminService.GetAllAsync();
         return Ok(admins);
     }
 
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] AdminDto dto)
     {
         if (!await IsSuperAdmin())
-            return Forbid("Only superadmins can create admins.");
+            return StatusCode(403, new
+            {
+                error = "Forbidden",
+                message = "Only superadmins can create admins."
+            });
 
         var created = await _adminService.CreateAsync(dto);
         return Ok(created);
@@ -59,7 +68,11 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] AdminDto dto)
     {
         if (!await IsSuperAdmin())
-            return Forbid("Only superadmins can update admins.");
+            return StatusCode(403, new
+            {
+                error = "Forbidden",
+                message = "Only superadmins can update admins."
+            });
 
         var updated = await _adminService.UpdateAsync(id, dto);
         return updated is null ? NotFound() : Ok(updated);
@@ -69,7 +82,11 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         if (!await IsSuperAdmin())
-            return Forbid("Only superadmins can delete admins.");
+            return StatusCode(403, new
+            {
+                error = "Forbidden",
+                message = "Only superadmins can delete admins."
+            });
 
         var deleted = await _adminService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();

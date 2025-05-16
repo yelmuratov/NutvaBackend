@@ -12,9 +12,11 @@ namespace NutvaCms.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly ITokenBlacklistService _blacklistService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(IAuthService authService, ITokenBlacklistService blacklistService)
     {
+        _blacklistService = blacklistService;
         _authService = authService;
     }
 
@@ -37,4 +39,23 @@ public class AuthController : ControllerBase
         var admin = await _authService.GetCurrentAsync(id);
         return admin is null ? NotFound() : Ok(admin);
     }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        var token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        if (token == null) return BadRequest("No token found");
+
+        var expClaim = User.FindFirst("exp");
+        if (expClaim == null || !long.TryParse(expClaim.Value, out var expUnix))
+            return BadRequest("Invalid token expiration");
+
+        var expiration = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+
+        _blacklistService.BlacklistToken(token, expiration);
+
+        return Ok("Logged out successfully");
+    }
+
 }

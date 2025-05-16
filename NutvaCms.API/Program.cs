@@ -7,6 +7,7 @@ using NutvaCms.Persistence.Seed;
 using NutvaCms.Application.Interfaces;
 using NutvaCms.Application.Services;
 using NutvaCms.Infrastructure.Repositories;
+using NutvaCms.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IStatisticService, StatisticService>();
 builder.Services.AddHttpClient<IBitrixService, BitrixService>();
 builder.Services.AddScoped<ITrackingPixelService, TrackingPixelService>();
+builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
 
 
 // Utilities
@@ -113,6 +115,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     });
 }
 
+app.UseMiddleware<JwtBlacklistMiddleware>();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -123,6 +126,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
     await DbSeeder.SeedSuperAdminAsync(db);
 }
 

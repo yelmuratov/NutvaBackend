@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NutvaCms.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f09c877a64791329fd7b04c5b32a71ee340b987")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a48df01bf6d9f192f50c2f82d582e7e1b78f915")]
 [assembly: System.Reflection.AssemblyProductAttribute("NutvaCms.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NutvaCms.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
