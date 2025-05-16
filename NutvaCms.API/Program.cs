@@ -12,12 +12,29 @@ using NutvaCms.API.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 // =========================
+// Connection string logic (Heroku support)
+// =========================
+var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+string connectionString = !string.IsNullOrWhiteSpace(dbUrl)
+    ? ConvertDatabaseUrlToConnectionString(dbUrl)
+    : builder.Configuration.GetConnectionString("DefaultConnection");
+
+static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
+{
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+
+    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}
+
+// =========================
 // Configure Services
 // =========================
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Repositories
 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
@@ -38,7 +55,6 @@ builder.Services.AddScoped<IStatisticService, StatisticService>();
 builder.Services.AddHttpClient<IBitrixService, BitrixService>();
 builder.Services.AddScoped<ITrackingPixelService, TrackingPixelService>();
 builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
-
 
 // Utilities
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -97,7 +113,6 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
 
 // =========================
 // Build and Configure App
