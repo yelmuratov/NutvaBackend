@@ -89,49 +89,53 @@ namespace NutvaCms.Persistence.Migrations
                     b.ToTable("Banners");
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.Blog", b =>
+            modelBuilder.Entity("NutvaCms.Domain.Entities.BlogPost", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ImageUrls")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<bool>("Published")
+                        .HasColumnType("boolean");
 
-                    b.Property<string>("MetaDescription")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MetaKeywords")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MetaTitle")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ViewCount")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Blogs");
+                    b.ToTable("BlogPosts");
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.BlogPostMedia", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AltText")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("BlogPostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("text");
+
+                    b.Property<int>("MediaType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogPostId");
+
+                    b.ToTable("BlogPostMedia");
                 });
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>
@@ -255,6 +259,137 @@ namespace NutvaCms.Persistence.Migrations
                     b.ToTable("TrackingPixels");
                 });
 
+            modelBuilder.Entity("NutvaCms.Domain.Entities.BlogPost", b =>
+                {
+                    b.OwnsOne("NutvaCms.Domain.Entities.BlogPostTranslation", "En", b1 =>
+                        {
+                            b1.Property<Guid>("BlogPostId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Content")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaDescription")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaKeywords")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Subtitle")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BlogPostId");
+
+                            b1.ToTable("BlogPosts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BlogPostId");
+                        });
+
+                    b.OwnsOne("NutvaCms.Domain.Entities.BlogPostTranslation", "Ru", b1 =>
+                        {
+                            b1.Property<Guid>("BlogPostId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Content")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaDescription")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaKeywords")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Subtitle")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BlogPostId");
+
+                            b1.ToTable("BlogPosts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BlogPostId");
+                        });
+
+                    b.OwnsOne("NutvaCms.Domain.Entities.BlogPostTranslation", "Uz", b1 =>
+                        {
+                            b1.Property<Guid>("BlogPostId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Content")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaDescription")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaKeywords")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Subtitle")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Title")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("BlogPostId");
+
+                            b1.ToTable("BlogPosts");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BlogPostId");
+                        });
+
+                    b.Navigation("En")
+                        .IsRequired();
+
+                    b.Navigation("Ru")
+                        .IsRequired();
+
+                    b.Navigation("Uz")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.BlogPostMedia", b =>
+                {
+                    b.HasOne("NutvaCms.Domain.Entities.BlogPost", "BlogPost")
+                        .WithMany("Media")
+                        .HasForeignKey("BlogPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BlogPost");
+                });
+
             modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequest", b =>
                 {
                     b.HasOne("NutvaCms.Domain.Entities.Product", "Product")
@@ -264,6 +399,11 @@ namespace NutvaCms.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.BlogPost", b =>
+                {
+                    b.Navigation("Media");
                 });
 #pragma warning restore 612, 618
         }

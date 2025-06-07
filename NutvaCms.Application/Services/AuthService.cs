@@ -19,11 +19,11 @@ public class AuthService : IAuthService
         _config = config;
     }
 
-    public async Task<string?> LoginAsync(LoginDto dto)
+    public async Task<string> LoginAsync(LoginDto dto)
     {
         var admin = await _repo.GetByEmailAsync(dto.Email);
         if (admin == null || !BCrypt.Net.BCrypt.Verify(dto.Password, admin.Password))
-            return null;
+            throw new UnauthorizedAccessException("Invalid credentials");
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]!);
@@ -31,9 +31,9 @@ public class AuthService : IAuthService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[] {
-                new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
-                new Claim(ClaimTypes.Email, admin.Email)
-            }),
+            new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
+            new Claim(ClaimTypes.Email, admin.Email)
+        }),
             Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

@@ -8,6 +8,7 @@ using NutvaCms.Application.Interfaces;
 using NutvaCms.Application.Services;
 using NutvaCms.Infrastructure.Repositories;
 using NutvaCms.API.Middlewares;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
 string connectionString = !string.IsNullOrWhiteSpace(dbUrl)
     ? ConvertDatabaseUrlToConnectionString(dbUrl)
-    : builder.Configuration.GetConnectionString("DefaultConnection");
+    : builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
 
 static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
 {
@@ -34,14 +35,13 @@ static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddScoped<ITrackingPixelRepository, TrackingPixelRepository>();
+builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 
-builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
@@ -51,6 +51,7 @@ builder.Services.AddScoped<IStatisticService, StatisticService>();
 builder.Services.AddHttpClient<IBitrixService, BitrixService>();
 builder.Services.AddScoped<ITrackingPixelService, TrackingPixelService>();
 builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
+builder.Services.AddScoped<IBlogPostService, BlogPostService>();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -135,6 +136,7 @@ app.Use(async (context, next) =>
 });
 
 app.UseMiddleware<JwtBlacklistMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();

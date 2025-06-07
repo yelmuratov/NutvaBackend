@@ -1,6 +1,5 @@
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\appsettings.json
-C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\NutvaCms.API.staticwebassets.runtime.json
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\NutvaCms.API.staticwebassets.endpoints.json
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\NutvaCms.API.exe
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\NutvaCms.API.deps.json
@@ -179,3 +178,4 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\refint\NutvaCm
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\NutvaCms.API.pdb
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\NutvaCms.API.genruntimeconfig.cache
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\ref\NutvaCms.API.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\NutvaCms.API.staticwebassets.runtime.json
