@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NutvaCms.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+597f5d34f6b73ed3039ece99ca7f7643ff744504")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f2179a595688a34138e6e5cb9f294a2ff196473")]
 [assembly: System.Reflection.AssemblyProductAttribute("NutvaCms.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NutvaCms.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

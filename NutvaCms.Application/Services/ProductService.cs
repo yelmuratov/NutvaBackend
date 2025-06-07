@@ -1,6 +1,8 @@
-using NutvaCms.Application.DTOs;
+using NutvaCms.Application.DTOs.ProductDtos;
 using NutvaCms.Application.Interfaces;
+using NutvaCms.Application.Mappers;
 using NutvaCms.Domain.Entities;
+using NutvaCms.Domain.Enums;
 
 namespace NutvaCms.Application.Services;
 
@@ -15,55 +17,53 @@ public class ProductService : IProductService
         _fileService = fileService;
     }
 
-    public Task<IEnumerable<Product>> GetAllAsync() => _repo.GetAllAsync();
+    // ✅ GET ALL PRODUCTS with language param
+    public async Task<IEnumerable<ProductSummaryDto>> GetAllAsync(string lang)
+    {
+        var products = await _repo.GetAllAsync();
+        var langEnum = Enum.TryParse<LanguageCode>(lang, true, out var parsedLang) ? parsedLang : LanguageCode.En;
 
+        return products.Select(p => ProductMapper.ToSummaryDto(p, langEnum)).ToList();
+    }
+
+    // ✅ GET BY ID full product
     public Task<Product?> GetByIdAsync(Guid id) => _repo.GetByIdAsync(id);
 
-    public async Task<Product> CreateAsync(ProductDto dto)
+    // ✅ CREATE PRODUCT
+    public async Task<Product> CreateAsync(CreateProductDto dto)
     {
-        var urls = dto.Images != null && dto.Images.Any()
-            ? await _fileService.UploadManyAsync(dto.Images)
-            : new List<string>();
+        List<string> imageUrls = new();
 
-        var product = new Product
+        if (dto.Images != null && dto.Images.Any())
         {
-            Name = dto.Name,
-            Description = dto.Description,
-            Price = dto.Price,
-            Slug = dto.Slug,
-            MetaTitle = dto.MetaTitle,
-            MetaDescription = dto.MetaDescription,
-            MetaKeywords = dto.MetaKeywords,
-            ImageUrls = urls
-        };
+            imageUrls = await _fileService.UploadManyAsync(dto.Images);
+        }
 
+        var product = ProductMapper.FromCreateDto(dto, imageUrls);
         await _repo.AddAsync(product);
         return product;
     }
 
-    public async Task<Product?> UpdateAsync(Guid id, ProductDto dto)
+    // ✅ UPDATE PRODUCT
+    public async Task<Product?> UpdateAsync(Guid id, UpdateProductDto dto)
     {
         var product = await _repo.GetByIdAsync(id);
-        if (product == null) return null;
+        if (product == null)
+            return null;
 
-        product.Name = dto.Name;
-        product.Description = dto.Description;
-        product.Price = dto.Price;
-        product.Slug = dto.Slug;
-        product.MetaTitle = dto.MetaTitle;
-        product.MetaDescription = dto.MetaDescription;
-        product.MetaKeywords = dto.MetaKeywords;
+        List<string> imageUrls = product.ImageUrls;
 
         if (dto.Images != null && dto.Images.Any())
         {
-            var urls = await _fileService.UploadManyAsync(dto.Images);
-            product.ImageUrls = urls;
+            imageUrls = await _fileService.UploadManyAsync(dto.Images);
         }
 
+        ProductMapper.ApplyUpdateDto(product, dto, imageUrls);
         await _repo.UpdateAsync(product);
         return product;
     }
 
+    // ✅ DELETE PRODUCT
     public async Task<bool> DeleteAsync(Guid id)
     {
         var product = await _repo.GetByIdAsync(id);
@@ -90,5 +90,4 @@ public class ProductService : IProductService
     {
         await _repo.IncrementProductBuyClickAsync(id);
     }
-
 }

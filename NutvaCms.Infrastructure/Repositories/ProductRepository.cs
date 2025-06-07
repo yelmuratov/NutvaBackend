@@ -15,7 +15,7 @@ public class ProductRepository : IProductRepository
     }
 
     public async Task<IEnumerable<Product>> GetAllAsync() =>
-        await _db.Products.ToListAsync(); // No .Include(p => p.Images)
+        await _db.Products.ToListAsync();
 
     public async Task<Product?> GetByIdAsync(Guid id) =>
         await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
@@ -32,11 +32,14 @@ public class ProductRepository : IProductRepository
         if (existing is null)
             throw new InvalidOperationException($"Product with ID {product.Id} not found");
 
-        existing.Name = product.Name;
-        existing.Description = product.Description;
+        // Update translations
+        existing.En = product.En;
+        existing.Uz = product.Uz;
+        existing.Ru = product.Ru;
+
+        // Update other fields
         existing.Price = product.Price;
-        existing.MetaTitle = product.MetaTitle;
-        existing.MetaDescription = product.MetaDescription;
+        existing.Slug = product.Slug;
         existing.ImageUrls = product.ImageUrls;
 
         await _db.SaveChangesAsync();
@@ -67,5 +70,4 @@ public class ProductRepository : IProductRepository
             await _db.SaveChangesAsync();
         }
     }
-
 }

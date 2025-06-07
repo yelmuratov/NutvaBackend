@@ -150,27 +150,7 @@ namespace NutvaCms.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("ImageUrls")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MetaDescription")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MetaKeywords")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MetaTitle")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -180,6 +160,9 @@ namespace NutvaCms.Persistence.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ViewCount")
                         .HasColumnType("integer");
@@ -388,6 +371,117 @@ namespace NutvaCms.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("BlogPost");
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>
+                {
+                    b.OwnsOne("NutvaCms.Domain.Entities.ProductTranslation", "En", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaDescription")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaKeywords")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Products");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.OwnsOne("NutvaCms.Domain.Entities.ProductTranslation", "Ru", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaDescription")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaKeywords")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Products");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.OwnsOne("NutvaCms.Domain.Entities.ProductTranslation", "Uz", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaDescription")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaKeywords")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MetaTitle")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Products");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.Navigation("En")
+                        .IsRequired();
+
+                    b.Navigation("Ru")
+                        .IsRequired();
+
+                    b.Navigation("Uz")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequest", b =>

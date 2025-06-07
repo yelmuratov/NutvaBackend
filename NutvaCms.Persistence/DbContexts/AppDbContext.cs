@@ -1,43 +1,49 @@
 using Microsoft.EntityFrameworkCore;
 using NutvaCms.Domain.Entities;
-namespace NutvaCms.Persistence.DbContexts;
 
-public class AppDbContext : DbContext
+namespace NutvaCms.Persistence.DbContexts
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-    // Existing DbSets
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<Banner> Banners => Set<Banner>();
-    public DbSet<Admin> Admins => Set<Admin>();
-    public DbSet<SiteStatistic> SiteStatistics => Set<SiteStatistic>();
-    public DbSet<PurchaseRequest> PurchaseRequests => Set<PurchaseRequest>();
-    public DbSet<TrackingPixel> TrackingPixels => Set<TrackingPixel>();
-
-    // ✅ New DbSets for Blog module
-    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
-    public DbSet<BlogPostMedia> BlogPostMedia => Set<BlogPostMedia>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public class AppDbContext : DbContext
     {
-        // Existing Product image conversion
-        modelBuilder.Entity<Product>()
-            .Property(p => p.ImageUrls)
-            .HasConversion(
-                v => string.Join(";", v),
-                v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
-            );
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        modelBuilder.Entity<Banner>()
-            .Property(b => b.ImageUrls)
-            .HasConversion(
-                v => string.Join(";", v),
-                v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
-            );
+        // ✅ All DbSets
+        public DbSet<Product> Products => Set<Product>();
+        public DbSet<Banner> Banners => Set<Banner>();
+        public DbSet<Admin> Admins => Set<Admin>();
+        public DbSet<SiteStatistic> SiteStatistics => Set<SiteStatistic>();
+        public DbSet<PurchaseRequest> PurchaseRequests => Set<PurchaseRequest>();
+        public DbSet<TrackingPixel> TrackingPixels => Set<TrackingPixel>();
+        public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+        public DbSet<BlogPostMedia> BlogPostMedia => Set<BlogPostMedia>();
 
-        // ✅ OWNED TRANSLATIONS (IMPORTANT PART!)
-        modelBuilder.Entity<BlogPost>().OwnsOne(b => b.En);
-        modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Uz);
-        modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Ru);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // ✅ Product image list serialization
+            modelBuilder.Entity<Product>()
+                .Property(p => p.ImageUrls)
+                .HasConversion(
+                    v => string.Join(";", v),
+                    v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
+                );
+
+            // ✅ Banner image list serialization
+            modelBuilder.Entity<Banner>()
+                .Property(b => b.ImageUrls)
+                .HasConversion(
+                    v => string.Join(";", v),
+                    v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
+                );
+
+            // ✅ Product Translations
+            modelBuilder.Entity<Product>().OwnsOne(p => p.En);
+            modelBuilder.Entity<Product>().OwnsOne(p => p.Uz);
+            modelBuilder.Entity<Product>().OwnsOne(p => p.Ru);
+
+            // ✅ BlogPost Translations
+            modelBuilder.Entity<BlogPost>().OwnsOne(b => b.En);
+            modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Uz);
+            modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Ru);
+        }
     }
 }
