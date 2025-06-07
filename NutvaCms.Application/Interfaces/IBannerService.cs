@@ -1,13 +1,14 @@
-using NutvaCms.Application.DTOs;
+using NutvaCms.Application.DTOs.BannerDtos;
 using NutvaCms.Domain.Entities;
 
-namespace NutvaCms.Application.Interfaces;
-
-public interface IBannerService
+namespace NutvaCms.Application.Interfaces
 {
-    Task<IEnumerable<Banner>> GetAllAsync();
-    Task<Banner?> GetByIdAsync(Guid id);
-    Task<Banner> CreateAsync(BannerDto dto);
-    Task<Banner?> UpdateAsync(Guid id, BannerDto dto);
-    Task<bool> DeleteAsync(Guid id);
+    public interface IBannerService
+    {
+        Task<IEnumerable<BannerSummaryDto>> GetAllAsync(string lang);
+        Task<Banner?> GetByIdAsync(Guid id);
+        Task<Banner> CreateAsync(CreateBannerDto dto);
+        Task<Banner?> UpdateAsync(Guid id, UpdateBannerDto dto);
+        Task<bool> DeleteAsync(Guid id);
+    }
 }

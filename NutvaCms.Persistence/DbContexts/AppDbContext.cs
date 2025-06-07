@@ -44,6 +44,12 @@ namespace NutvaCms.Persistence.DbContexts
             modelBuilder.Entity<BlogPost>().OwnsOne(b => b.En);
             modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Uz);
             modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Ru);
+
+            // ✅ Banner Translations
+            modelBuilder.Entity<Banner>().OwnsOne(b => b.En);
+            modelBuilder.Entity<Banner>().OwnsOne(b => b.Uz);
+            modelBuilder.Entity<Banner>().OwnsOne(b => b.Ru);
         }
+
     }
 }

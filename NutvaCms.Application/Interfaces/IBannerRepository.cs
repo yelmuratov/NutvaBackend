@@ -11,3 +11,4 @@ public interface IBannerRepository
     Task DeleteAsync(Guid id);
 }
 
+

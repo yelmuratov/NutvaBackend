@@ -1,81 +1,78 @@
-using NutvaCms.Application.DTOs;
+using NutvaCms.Application.DTOs.BannerDtos;
 using NutvaCms.Application.Interfaces;
+using NutvaCms.Application.Mappers;
 using NutvaCms.Domain.Entities;
+using NutvaCms.Domain.Enums;
 
-namespace NutvaCms.Application.Services;
-
-public class BannerService : IBannerService
+namespace NutvaCms.Application.Services
 {
-    private readonly IBannerRepository _repo;
-    private readonly IFileService _fileService;
-
-    public BannerService(IBannerRepository repo, IFileService fileService)
+    public class BannerService : IBannerService
     {
-        _repo = repo;
-        _fileService = fileService;
-    }
+        private readonly IBannerRepository _repo;
+        private readonly IFileService _fileService;
 
-    public Task<IEnumerable<Banner>> GetAllAsync() => _repo.GetAllAsync();
-
-    public Task<Banner?> GetByIdAsync(Guid id) => _repo.GetByIdAsync(id);
-
-    public async Task<Banner> CreateAsync(BannerDto dto)
-    {
-        var urls = dto.Images != null && dto.Images.Any()
-            ? await _fileService.UploadManyAsync(dto.Images)
-            : new List<string>();
-
-        var banner = new Banner
+        public BannerService(IBannerRepository repo, IFileService fileService)
         {
-            Title = dto.Title,
-            Subtitle = dto.Subtitle,
-            Link = dto.Link,
-            MetaTitle = dto.MetaTitle,
-            MetaKeywords = dto.MetaKeywords,
-            MetaDescription = dto.MetaDescription,
-            ImageUrls = urls
-        };
-
-        await _repo.AddAsync(banner);
-        return banner;
-    }
-
-    public async Task<Banner?> UpdateAsync(Guid id, BannerDto dto)
-    {
-        var banner = await _repo.GetByIdAsync(id);
-        if (banner == null) return null;
-
-        banner.Title = dto.Title;
-        banner.Subtitle = dto.Subtitle;
-        banner.Link = dto.Link;
-        banner.MetaTitle = dto.MetaTitle;
-        banner.MetaKeywords = dto.MetaKeywords;
-        banner.MetaDescription = dto.MetaDescription;
-
-        if (dto.Images != null && dto.Images.Any())
-        {
-            var urls = await _fileService.UploadManyAsync(dto.Images);
-            banner.ImageUrls = urls;
+            _repo = repo;
+            _fileService = fileService;
         }
 
-        await _repo.UpdateAsync(banner);
-        return await _repo.GetByIdAsync(id);
-    }
-
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        var banner = await _repo.GetByIdAsync(id);
-        if (banner == null) return false;
-
-        if (banner.ImageUrls.Any())
+        // ✅ Get all banners with language
+        public async Task<IEnumerable<BannerSummaryDto>> GetAllAsync(string lang)
         {
-            foreach (var imageUrl in banner.ImageUrls)
+            var banners = await _repo.GetAllAsync();
+            var langEnum = Enum.TryParse<LanguageCode>(lang, true, out var parsedLang) ? parsedLang : LanguageCode.En;
+
+            return banners.Select(b => BannerMapper.ToSummaryDto(b, langEnum)).ToList();
+        }
+
+        // ✅ Get banner by id (full object without language filter)
+        public Task<Banner?> GetByIdAsync(Guid id) => _repo.GetByIdAsync(id);
+
+        // ✅ Create banner
+        public async Task<Banner> CreateAsync(CreateBannerDto dto)
+        {
+            var imageUrls = dto.Images != null && dto.Images.Any()
+                ? await _fileService.UploadManyAsync(dto.Images)
+                : new List<string>();
+
+            var banner = BannerMapper.FromCreateDto(dto, imageUrls);
+            await _repo.AddAsync(banner);
+            return banner;
+        }
+
+        // ✅ Update banner
+        public async Task<Banner?> UpdateAsync(Guid id, UpdateBannerDto dto)
+        {
+            var banner = await _repo.GetByIdAsync(id);
+            if (banner == null)
+                return null;
+
+            var imageUrls = dto.Images != null && dto.Images.Any()
+                ? await _fileService.UploadManyAsync(dto.Images)
+                : banner.ImageUrls;
+
+            BannerMapper.ApplyUpdateDto(banner, dto, imageUrls);
+            await _repo.UpdateAsync(banner);
+            return banner;
+        }
+
+        // ✅ Delete banner
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var banner = await _repo.GetByIdAsync(id);
+            if (banner == null) return false;
+
+            if (banner.ImageUrls.Any())
             {
-                await _fileService.DeleteManyAsync(imageUrl);
+                foreach (var imageUrl in banner.ImageUrls)
+                {
+                    await _fileService.DeleteManyAsync(imageUrl);
+                }
             }
-        }
 
-        await _repo.DeleteAsync(id);
-        return true;
+            await _repo.DeleteAsync(id);
+            return true;
+        }
     }
 }
