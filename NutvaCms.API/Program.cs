@@ -9,6 +9,8 @@ using NutvaCms.Application.Services;
 using NutvaCms.Infrastructure.Repositories;
 using NutvaCms.API.Middlewares;
 using Microsoft.Extensions.FileProviders;
+using NutvaCms.API.Hubs;
+using NutvaCms.Application.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,12 +37,17 @@ static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+builder.Services.Configure<TelegramSettings>(builder.Configuration.GetSection("TelegramSettings"));
+
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddScoped<ITrackingPixelRepository, TrackingPixelRepository>();
 builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
+builder.Services.AddScoped<IChatAdminRepository, ChatAdminRepository>();
+builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
+builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
@@ -52,6 +59,10 @@ builder.Services.AddHttpClient<IBitrixService, BitrixService>();
 builder.Services.AddScoped<ITrackingPixelService, TrackingPixelService>();
 builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
 builder.Services.AddScoped<IBlogPostService, BlogPostService>();
+builder.Services.AddScoped<IChatAdminService, ChatAdminService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddSingleton<TelegramService>();
+
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -71,6 +82,7 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -142,6 +154,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/chatHub");
 
 using (var scope = app.Services.CreateScope())
 {

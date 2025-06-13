@@ -16,6 +16,11 @@ namespace NutvaCms.Persistence.DbContexts
         public DbSet<TrackingPixel> TrackingPixels => Set<TrackingPixel>();
         public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
         public DbSet<BlogPostMedia> BlogPostMedia => Set<BlogPostMedia>();
+        public DbSet<ChatAdmin> ChatAdmins { get; set; } = null!;
+
+        public DbSet<ChatSession> ChatSessions { get; set; } = null!;
+        public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +54,18 @@ namespace NutvaCms.Persistence.DbContexts
             modelBuilder.Entity<Banner>().OwnsOne(b => b.En);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Uz);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Ru);
+
+
+            modelBuilder.Entity<ChatSession>()
+                .HasMany(s => s.Messages)
+                .WithOne(m => m.ChatSession)
+                .HasForeignKey(m => m.ChatSessionId);
+
+            modelBuilder.Entity<ChatSession>()
+                .HasOne(s => s.ChatAdmin)
+                .WithMany()
+                .HasForeignKey(s => s.ChatAdminId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
     }

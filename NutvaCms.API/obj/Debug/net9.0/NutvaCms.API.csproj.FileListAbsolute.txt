@@ -179,3 +179,6 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\NutvaCms.API.p
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\NutvaCms.API.genruntimeconfig.cache
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\obj\Debug\net9.0\ref\NutvaCms.API.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\NutvaCms.API.staticwebassets.runtime.json
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\Newtonsoft.Json.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\System.Net.WebSockets.WebSocketProtocol.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\Telegram.Bot.dll

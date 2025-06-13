@@ -77,6 +77,10 @@
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[8.9.0, )"
+            },
+            "Telegram.Bot": {
+              "target": "Package",
+              "version": "[18.1.7, )"
             }
           },
           "imports": [

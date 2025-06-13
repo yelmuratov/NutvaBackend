@@ -118,6 +118,92 @@ namespace NutvaCms.Persistence.Migrations
                     b.ToTable("BlogPostMedia");
                 });
 
+            modelBuilder.Entity("NutvaCms.Domain.Entities.ChatAdmin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsBusy")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("TelegramUserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChatAdmins");
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChatSessionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatSessionId");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.ChatSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ChatAdminId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserIdentifier")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatAdminId");
+
+                    b.ToTable("ChatSessions");
+                });
+
             modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -464,6 +550,27 @@ namespace NutvaCms.Persistence.Migrations
                     b.Navigation("BlogPost");
                 });
 
+            modelBuilder.Entity("NutvaCms.Domain.Entities.ChatMessage", b =>
+                {
+                    b.HasOne("NutvaCms.Domain.Entities.ChatSession", "ChatSession")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChatSession");
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.ChatSession", b =>
+                {
+                    b.HasOne("NutvaCms.Domain.Entities.ChatAdmin", "ChatAdmin")
+                        .WithMany()
+                        .HasForeignKey("ChatAdminId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("ChatAdmin");
+                });
+
             modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>
                 {
                     b.OwnsOne("NutvaCms.Domain.Entities.ProductTranslation", "En", b1 =>
@@ -589,6 +696,11 @@ namespace NutvaCms.Persistence.Migrations
             modelBuilder.Entity("NutvaCms.Domain.Entities.BlogPost", b =>
                 {
                     b.Navigation("Media");
+                });
+
+            modelBuilder.Entity("NutvaCms.Domain.Entities.ChatSession", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }
