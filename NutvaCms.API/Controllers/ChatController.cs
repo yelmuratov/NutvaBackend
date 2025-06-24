@@ -76,7 +76,10 @@ public class ChatController : ControllerBase
             Savol: {request.Question}
 
             Javobni o‘zbek tilida yozing. Agar savol Nutva bilan bog‘liq bo‘lmasa, quyidagicha javob bering:
-            "Uzr, men faqat Nutva kompaniyasi haqida ma'lumot bera olaman."
+            "Uzr, men faqat Nutva kompaniyasi haqida ma'lumot bera olaman.
+            
+            Agar sendan boshqa savol so‘ralsa, quyidagicha javob bering: Men faqat Nutva kompaniyasi haqida ma'lumot bera olaman.
+            Agar sendan kimligingiz so‘ralsa, quyidagicha javob bering: Men Nutva kompaniyasi uchun yaratilgan sun'iy intellekt chat botman.
         """;
 
             var payload = new
