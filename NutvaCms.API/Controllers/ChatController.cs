@@ -29,6 +29,31 @@ public class ChatController : ControllerBase
     {
         try
         {
+            var question = request.Question?.Trim().ToLower();
+
+            // ✅ Identity check override
+            var identityQuestions = new[]
+            {
+            "sen kimsan",
+            "siz kimsiz",
+            "isming nima",
+            "sen kim",
+            "siz kim",
+            "bu nima",
+            "bu kim",
+            "siz kimsiz?",
+            "sen kimsan?"
+        };
+
+            if (identityQuestions.Contains(question))
+            {
+                return Ok(new
+                {
+                    success = true,
+                    answer = "Men Nutva kompaniyasi uchun yaratilgan sun'iy intellekt chat botman."
+                });
+            }
+
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "docs", "company-products.docx");
             if (!System.IO.File.Exists(filePath))
             {
@@ -41,32 +66,31 @@ public class ChatController : ControllerBase
 
             string context = _docReader.ReadDocxText(filePath);
 
-            // ✅ Enhanced Prompt with assistant identity & fallback instruction
             var prompt = $"""
-                Siz Nutva kompaniyasining rasmiy sun'iy intellekt yordamchisiz. Siz faqat Nutva haqida ma'lumot bera olasiz va hech qachon boshqa texnologiyalar (masalan, Gemini, Google, ChatGPT) haqida o'zingizni tanishtirmaysiz.
+            Siz Nutva kompaniyasining rasmiy sun'iy intellekt yordamchisiz. Siz faqat Nutva haqida ma'lumot bera olasiz va hech qachon boshqa texnologiyalar (masalan, Gemini, Google, ChatGPT) haqida o'zingizni tanishtirmaysiz.
 
-                Quyidagi hujjat asosida foydalanuvchining savoliga aniq, do'stona va qisqacha javob bering:
+            Quyidagi hujjat asosida foydalanuvchining savoliga aniq, do'stona va qisqacha javob bering:
 
-                {context}
+            {context}
 
-                Savol: {request.Question}
+            Savol: {request.Question}
 
-                Javobni o‘zbek tilida yozing. Agar savol Nutva bilan bog‘liq bo‘lmasa, quyidagicha javob bering:
-                "Uzr, men faqat Nutva kompaniyasi haqida ma'lumot bera olaman."
-            """;
+            Javobni o‘zbek tilida yozing. Agar savol Nutva bilan bog‘liq bo‘lmasa, quyidagicha javob bering:
+            "Uzr, men faqat Nutva kompaniyasi haqida ma'lumot bera olaman."
+        """;
 
             var payload = new
             {
                 contents = new[]
                 {
-                    new
+                new
+                {
+                    parts = new[]
                     {
-                        parts = new[]
-                        {
-                            new { text = prompt }
-                        }
+                        new { text = prompt }
                     }
                 }
+            }
             };
 
             var client = _httpClientFactory.CreateClient();
