@@ -41,7 +41,19 @@ public class ChatController : ControllerBase
 
             string context = _docReader.ReadDocxText(filePath);
 
-            var prompt = $"Quyidagi Nutva kompaniyasiga oid hujjat asosida savolga javob bering:\n\n{context}\n\nSavol: {request.Question}\n\nIltimos, javobni o'zbek tilida bering.";
+            // ✅ Enhanced Prompt with assistant identity & fallback instruction
+            var prompt = $"""
+                Siz Nutva kompaniyasining rasmiy sun'iy intellekt yordamchisiz. Siz faqat Nutva haqida ma'lumot bera olasiz va hech qachon boshqa texnologiyalar (masalan, Gemini, Google, ChatGPT) haqida o'zingizni tanishtirmaysiz.
+
+                Quyidagi hujjat asosida foydalanuvchining savoliga aniq, do'stona va qisqacha javob bering:
+
+                {context}
+
+                Savol: {request.Question}
+
+                Javobni o‘zbek tilida yozing. Agar savol Nutva bilan bog‘liq bo‘lmasa, quyidagicha javob bering:
+                "Uzr, men faqat Nutva kompaniyasi haqida ma'lumot bera olaman."
+            """;
 
             var payload = new
             {
@@ -82,10 +94,9 @@ public class ChatController : ControllerBase
                 .GetProperty("text")
                 .GetString();
 
-            // ✅ Fallback if no usable response
             if (string.IsNullOrWhiteSpace(answer) || answer.Trim().Length < 10)
             {
-                answer = "Uzur, lekin men faqat Nutva kompaniyasi haqida ma'lumotga egaman.";
+                answer = "Uzr, men faqat Nutva kompaniyasi haqida ma'lumot bera olaman.";
             }
 
             return Ok(new
