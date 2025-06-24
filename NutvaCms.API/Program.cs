@@ -11,6 +11,8 @@ using NutvaCms.API.Middlewares;
 using Microsoft.Extensions.FileProviders;
 using NutvaCms.API.Hubs;
 using NutvaCms.Application.Settings;
+using NutvaCms.API.Services;
+using NutvaCms.API.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +39,12 @@ static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+builder.Services.Configure<GeminiSettings>(
+    builder.Configuration.GetSection("Gemini"));
+
 builder.Services.Configure<TelegramSettings>(builder.Configuration.GetSection("TelegramSettings"));
 
+// Repositories & Services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
@@ -62,9 +68,22 @@ builder.Services.AddScoped<IBlogPostService, BlogPostService>();
 builder.Services.AddScoped<IChatAdminService, ChatAdminService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddSingleton<TelegramService>();
-
-
+builder.Services.AddSingleton<DocxReaderService>();
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+// CORS (important for SignalR)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder
+            .WithOrigins("http://127.0.0.1:5500") // 🔁 Adjust this if frontend changes
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
@@ -80,7 +99,6 @@ builder.Services.AddAuthentication("Bearer")
     });
 
 builder.Services.AddAuthorization();
-
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
@@ -149,6 +167,9 @@ app.Use(async (context, next) =>
 
 app.UseMiddleware<JwtBlacklistMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseCors("AllowAll"); // ✅ Enable CORS before auth
+
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();

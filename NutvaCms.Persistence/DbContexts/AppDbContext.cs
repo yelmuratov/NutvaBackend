@@ -21,7 +21,6 @@ namespace NutvaCms.Persistence.DbContexts
         public DbSet<ChatSession> ChatSessions { get; set; } = null!;
         public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // ✅ Product image list serialization

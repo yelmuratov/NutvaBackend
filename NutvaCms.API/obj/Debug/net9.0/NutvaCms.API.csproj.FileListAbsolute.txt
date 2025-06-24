@@ -182,3 +182,11 @@ C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\NutvaCms.API.s
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\Newtonsoft.Json.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\System.Net.WebSockets.WebSocketProtocol.dll
 C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\Telegram.Bot.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\DocumentFormat.OpenXml.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\Google.Apis.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\Google.Apis.Auth.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\Google.Apis.Core.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\System.IO.Packaging.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\System.Management.dll
+C:\Users\elmur\Desktop\NutvaBackend\NutvaCms.API\bin\Debug\net9.0\runtimes\win\lib\net7.0\System.Management.dll

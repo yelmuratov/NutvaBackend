@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NutvaCms.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+39a6cbd95a40bbbf43181d64bad45c7479a6ad83")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+45952812ddef0a46393d395bcfafefaa8a18956f")]
 [assembly: System.Reflection.AssemblyProductAttribute("NutvaCms.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NutvaCms.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

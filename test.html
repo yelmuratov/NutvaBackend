@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SignalR Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+  <style>
+    #loader {
+      display: none;
+      color: #333;
+      font-style: italic;
+      margin-top: 10px;
+    }
+    #a {
+      margin-top: 15px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <input id="q" placeholder="Enter your question" />
+  <button onclick="send()">Send</button>
+  <div id="loader">⏳ Loading...</div>
+  <pre id="a"></pre>
+
+  <script>
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5000/chatHub")
+      .build();
+
+    connection.on("ReceiveAnswer", (msg) => {
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("a").innerText = msg;
+    });
+
+    connection.start().then(() => {
+      console.log("✅ Connected to SignalR");
+    }).catch(err => {
+      console.error("❌ SignalR Connection failed:", err);
+    });
+
+    function send() {
+      const text = document.getElementById("q").value;
+      if (!text) return;
+
+      document.getElementById("loader").style.display = "block";
+      document.getElementById("a").innerText = "";
+
+      connection.invoke("AskQuestion", text).catch(err => {
+        document.getElementById("loader").style.display = "none";
+        console.error("❌ Failed to send:", err);
+      });
+    }
+  </script>
+</body>
+</html>

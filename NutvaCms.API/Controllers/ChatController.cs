@@ -1,83 +1,107 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using NutvaCms.Application.DTOs.Chat;
-using NutvaCms.Application.Interfaces;
-using NutvaCms.API.Hubs;
+using Microsoft.Extensions.Options;
+using NutvaCms.API.Settings;
+using NutvaCms.API.Services;
+using NutvaCms.API.Domain.Entities;
+using System.Net.Http.Json;
+using System.Text.Json;
 
-namespace NutvaCms.API.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class ChatController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ChatController : ControllerBase
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly DocxReaderService _docReader;
+    private readonly GeminiSettings _geminiSettings;
+
+    public ChatController(
+        IHttpClientFactory httpClientFactory,
+        DocxReaderService docReader,
+        IOptions<GeminiSettings> geminiOptions)
     {
-        private readonly IChatService _chatService;
-        private readonly IHubContext<ChatHub> _hubContext;
+        _httpClientFactory = httpClientFactory;
+        _docReader = docReader;
+        _geminiSettings = geminiOptions.Value;
+    }
 
-        public ChatController(IChatService chatService, IHubContext<ChatHub> hubContext)
+    [HttpPost("ask")]
+    public async Task<IActionResult> Ask([FromBody] ChatRequest request)
+    {
+        try
         {
-            _chatService = chatService;
-            _hubContext = hubContext;
-        }
-
-        // Start chat (session + first message)
-        [HttpPost("start")]
-        public async Task<IActionResult> StartChat([FromBody] StartChatDto dto)
-        {
-            var session = await _chatService.StartChatAsync(dto);
-
-            // Push first message in real time (if any)
-            var firstMessage = session.Messages.FirstOrDefault();
-            if (firstMessage != null)
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "docs", "company-products.docx");
+            if (!System.IO.File.Exists(filePath))
             {
-                await _hubContext.Clients.Group(session.Id.ToString())
-                    .SendAsync("ReceiveMessage", firstMessage);
+                return BadRequest(new
+                {
+                    success = false,
+                    message = $"Could not find file '{filePath}'."
+                });
             }
 
-            return Ok(session);
+            string context = _docReader.ReadDocxText(filePath);
+
+            var prompt = $"Quyidagi Nutva kompaniyasiga oid hujjat asosida savolga javob bering:\n\n{context}\n\nSavol: {request.Question}\n\nIltimos, javobni o'zbek tilida bering.";
+
+            var payload = new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new[]
+                        {
+                            new { text = prompt }
+                        }
+                    }
+                }
+            };
+
+            var client = _httpClientFactory.CreateClient();
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_geminiSettings.ApiKey}";
+            var response = await client.PostAsJsonAsync(url, payload);
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "Gemini API failed",
+                    detail = json
+                });
+            }
+
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            var answer = root
+                .GetProperty("candidates")[0]
+                .GetProperty("content")
+                .GetProperty("parts")[0]
+                .GetProperty("text")
+                .GetString();
+
+            // ✅ Fallback if no usable response
+            if (string.IsNullOrWhiteSpace(answer) || answer.Trim().Length < 10)
+            {
+                answer = "Uzur, lekin men faqat Nutva kompaniyasi haqida ma'lumotga egaman.";
+            }
+
+            return Ok(new
+            {
+                success = true,
+                answer
+            });
         }
-
-        // Send a new message to an existing session
-        [HttpPost("send")]
-        public async Task<IActionResult> SendMessage([FromBody] SendChatMessageDto dto)
+        catch (Exception ex)
         {
-            var message = await _chatService.SendMessageAsync(dto);
-
-            // Real-time push to all clients in the chat session
-            await _hubContext.Clients.Group(dto.SessionId.ToString())
-                .SendAsync("ReceiveMessage", message);
-
-            return Ok(message);
-        }
-
-        // Get active session by user identifier
-        [HttpGet("active/{userIdentifier}")]
-        public async Task<IActionResult> GetActiveSession(string userIdentifier)
-        {
-            var session = await _chatService.GetActiveSessionByUserAsync(userIdentifier);
-            if (session == null)
-                return NotFound();
-            return Ok(session);
-        }
-
-        // Get messages for a session
-        [HttpGet("{sessionId}/messages")]
-        public async Task<IActionResult> GetMessages(int sessionId)
-        {
-            var messages = await _chatService.GetSessionMessagesAsync(sessionId);
-            return Ok(messages);
-        }
-
-        // End a session
-        [HttpPost("{sessionId}/end")]
-        public async Task<IActionResult> EndSession(int sessionId)
-        {
-            await _chatService.EndSessionAsync(sessionId);
-
-            // Optionally: notify clients that chat ended
-            await _hubContext.Clients.Group(sessionId.ToString())
-                .SendAsync("SessionEnded");
-
-            return NoContent();
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "Internal server error",
+                detail = ex.Message
+            });
         }
     }
 }

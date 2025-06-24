@@ -29,6 +29,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=nutva_db;Username=nutva_user;Password=nutva_pass
     volumes:
       - ./NutvaCms.API/wwwroot/uploads:/app/wwwroot/uploads
+      - ./docs:/app/docs
 
 volumes:
   postgres_data:
