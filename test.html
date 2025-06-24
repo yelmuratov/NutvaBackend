@@ -24,7 +24,7 @@
 
   <script>
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5000/chatHub")
+      .withUrl("https://www.nutvahealth.uz/chathub")
       .build();
 
     connection.on("ReceiveAnswer", (msg) => {
