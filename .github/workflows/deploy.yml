@@ -1,0 +1,34 @@
+name: Deploy Nutva Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.NUTVA_SERVER_SSH_KEY }}
+
+      - name: Run health check on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ntva@demo.nutva.uz "
+            curl -f http://localhost:5000/swagger/index.html || exit 1
+          "
+
+      - name: Deploy via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ntva@demo.nutva.uz "
+            cd ~/NutvaBackend &&
+            git pull origin main &&
+            docker compose down &&
+            docker compose up --build -d
+          "
