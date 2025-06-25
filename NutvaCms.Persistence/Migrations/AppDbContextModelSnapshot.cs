@@ -136,6 +136,9 @@ namespace NutvaCms.Persistence.Migrations
                     b.Property<bool>("IsBusy")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("boolean");
+
                     b.Property<long>("TelegramUserId")
                         .HasColumnType("bigint");
 
