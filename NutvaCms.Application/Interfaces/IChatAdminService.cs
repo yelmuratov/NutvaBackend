@@ -12,5 +12,6 @@ namespace NutvaCms.Application.Interfaces
 
         // Optionally, for advanced scenarios
         Task<ChatAdminDto?> GetByTelegramUserIdAsync(long telegramUserId);
+        Task<ChatAdminDto?> GetAvailableAdminAsync();
     }
 }

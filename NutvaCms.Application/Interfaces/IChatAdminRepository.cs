@@ -9,8 +9,7 @@ namespace NutvaCms.Application.Interfaces
         Task AddAsync(ChatAdmin admin);
         Task UpdateAsync(ChatAdmin admin);
         Task DeleteAsync(ChatAdmin admin);
-
-        // Optionally, find by TelegramUserId (useful for bot integration)
         Task<ChatAdmin?> GetByTelegramUserIdAsync(long telegramUserId);
+        Task<ChatAdmin?> GetAvailableAdminAsync();
     }
 }

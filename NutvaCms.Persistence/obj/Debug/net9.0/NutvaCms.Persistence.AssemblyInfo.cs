@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NutvaCms.Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5529582b184ff8bfb77019190a87101cbc674bc4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c1720c50a82ccddbbfadfe70d8a28709e5f3914b")]
 [assembly: System.Reflection.AssemblyProductAttribute("NutvaCms.Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NutvaCms.Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

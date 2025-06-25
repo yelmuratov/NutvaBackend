@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2UJ91pyUY70=",
+  "dgSpecHash": "iY08t2l68gg=",
   "success": true,
   "projectFilePath": "/home/kali/Desktop/NutvaBackend/NutvaCms.API/NutvaCms.API.csproj",
   "expectedPackageFiles": [
@@ -138,20 +138,7 @@
     "/home/kali/.nuget/packages/system.threading.channels/8.0.0/system.threading.channels.8.0.0.nupkg.sha512",
     "/home/kali/.nuget/packages/system.threading.tasks.extensions/4.5.4/system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "/home/kali/.nuget/packages/system.windows.extensions/6.0.0/system.windows.extensions.6.0.0.nupkg.sha512",
-    "/home/kali/.nuget/packages/telegram.bot/19.0.0/telegram.bot.19.0.0.nupkg.sha512"
+    "/home/kali/.nuget/packages/telegram.bot/18.0.0/telegram.bot.18.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "message": "NutvaCms.Application depends on Telegram.Bot (>= 18.1.7) but Telegram.Bot 18.1.7 was not found. Telegram.Bot 19.0.0 was resolved instead.",
-      "projectPath": "/home/kali/Desktop/NutvaBackend/NutvaCms.API/NutvaCms.API.csproj",
-      "warningLevel": 1,
-      "filePath": "/home/kali/Desktop/NutvaBackend/NutvaCms.API/NutvaCms.API.csproj",
-      "libraryId": "Telegram.Bot",
-      "targetGraphs": [
-        "net9.0"
-      ]
-    }
-  ]
+  "logs": []
 }

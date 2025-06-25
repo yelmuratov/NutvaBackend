@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "DjzbIdSLvws=",
+  "dgSpecHash": "1Nym5viuKM0=",
   "success": true,
   "projectFilePath": "/home/kali/Desktop/NutvaBackend/NutvaCms.Application/NutvaCms.Application.csproj",
   "expectedPackageFiles": [
@@ -35,27 +35,14 @@
     "/home/kali/.nuget/packages/microsoft.identitymodel.logging/8.9.0/microsoft.identitymodel.logging.8.9.0.nupkg.sha512",
     "/home/kali/.nuget/packages/microsoft.identitymodel.tokens/8.9.0/microsoft.identitymodel.tokens.8.9.0.nupkg.sha512",
     "/home/kali/.nuget/packages/microsoft.net.http.headers/2.3.0/microsoft.net.http.headers.2.3.0.nupkg.sha512",
-    "/home/kali/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
+    "/home/kali/.nuget/packages/newtonsoft.json/12.0.2/newtonsoft.json.12.0.2.nupkg.sha512",
     "/home/kali/.nuget/packages/sixlabors.imagesharp/3.1.8/sixlabors.imagesharp.3.1.8.nupkg.sha512",
     "/home/kali/.nuget/packages/system.buffers/4.6.0/system.buffers.4.6.0.nupkg.sha512",
     "/home/kali/.nuget/packages/system.diagnostics.diagnosticsource/8.0.1/system.diagnostics.diagnosticsource.8.0.1.nupkg.sha512",
     "/home/kali/.nuget/packages/system.identitymodel.tokens.jwt/8.9.0/system.identitymodel.tokens.jwt.8.9.0.nupkg.sha512",
     "/home/kali/.nuget/packages/system.reflection.metadata/8.0.1/system.reflection.metadata.8.0.1.nupkg.sha512",
     "/home/kali/.nuget/packages/system.text.encodings.web/8.0.0/system.text.encodings.web.8.0.0.nupkg.sha512",
-    "/home/kali/.nuget/packages/telegram.bot/19.0.0/telegram.bot.19.0.0.nupkg.sha512"
+    "/home/kali/.nuget/packages/telegram.bot/18.0.0/telegram.bot.18.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "message": "NutvaCms.Application depends on Telegram.Bot (>= 18.1.7) but Telegram.Bot 18.1.7 was not found. Telegram.Bot 19.0.0 was resolved instead.",
-      "projectPath": "/home/kali/Desktop/NutvaBackend/NutvaCms.Application/NutvaCms.Application.csproj",
-      "warningLevel": 1,
-      "filePath": "/home/kali/Desktop/NutvaBackend/NutvaCms.Application/NutvaCms.Application.csproj",
-      "libraryId": "Telegram.Bot",
-      "targetGraphs": [
-        "net9.0"
-      ]
-    }
-  ]
+  "logs": []
 }

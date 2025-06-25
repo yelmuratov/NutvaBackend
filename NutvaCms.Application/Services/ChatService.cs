@@ -1,6 +1,7 @@
 using NutvaCms.Application.DTOs.Chat;
 using NutvaCms.Application.Interfaces;
-using NutvaCms.Application.Mappers;
+using NutvaCms.Domain.Entities;
+using Telegram.Bot;
 
 namespace NutvaCms.Application.Services
 {
@@ -8,68 +9,60 @@ namespace NutvaCms.Application.Services
     {
         private readonly IChatSessionRepository _sessionRepo;
         private readonly IChatMessageRepository _messageRepo;
+        private readonly IChatAdminRepository _adminRepo;
+        private readonly IChatMapper _mapper;
+        private readonly ITelegramBotClient _bot;
 
         public ChatService(
             IChatSessionRepository sessionRepo,
-            IChatMessageRepository messageRepo)
+            IChatMessageRepository messageRepo,
+            IChatAdminRepository adminRepo,
+            IChatMapper mapper,
+            ITelegramBotClient bot)
         {
             _sessionRepo = sessionRepo;
             _messageRepo = messageRepo;
+            _adminRepo = adminRepo;
+            _mapper = mapper;
+            _bot = bot;
         }
 
-        public async Task<ChatSessionDto> StartChatAsync(StartChatDto dto)
+        public async Task SendMessageAsync(SendChatMessageDto dto, string anonymousId)
         {
-            // Check if user already has an active session
-            var existing = await _sessionRepo.GetActiveSessionByUserAsync(dto.UserIdentifier);
-            if (existing != null)
-                return ChatMapper.ToDto(existing);
+            // 1. Try to get an active session for this user
+            var session = await _sessionRepo.GetActiveSessionAsync(anonymousId);
 
-            var (session, message) = ChatMapper.FromStartChatDto(dto);
-            await _sessionRepo.AddAsync(session);
-            // EF Core will cascade-save message because it's attached to session.Messages
+            if (session == null)
+            {
+                // 2. Get available admin
+                var admin = await _adminRepo.GetAvailableAdminAsync();
+                if (admin == null)
+                    throw new Exception("No admins available right now.");
 
-            return ChatMapper.ToDto(session);
-        }
+                // 3. Create new session and mark admin as busy
+                session = await _sessionRepo.CreateSessionAsync(anonymousId, admin.Id);
+                admin.IsBusy = true;
+                await _adminRepo.UpdateAsync(admin);
 
-        public async Task<ChatSessionDto?> GetSessionAsync(int sessionId)
-        {
-            var session = await _sessionRepo.GetByIdAsync(sessionId);
-            return session == null ? null : ChatMapper.ToDto(session);
-        }
+                // ⚠️ Ensure we have the TelegramUserId in session.Admin
+                session.Admin = admin;
+            }
 
-        public async Task<ChatSessionDto?> GetActiveSessionByUserAsync(string userIdentifier)
-        {
-            var session = await _sessionRepo.GetActiveSessionByUserAsync(userIdentifier);
-            return session == null ? null : ChatMapper.ToDto(session);
-        }
+            // 4. Send message to admin via Telegram
+            await _bot.SendTextMessageAsync(
+                chatId: session.Admin.TelegramUserId,
+                text: $"💬 New message from anonymous user:\n\n{dto.Message}"
+            );
 
-        public async Task<ChatMessageDto> SendMessageAsync(SendChatMessageDto dto)
-        {
-            var message = ChatMapper.FromSendChatMessageDto(dto);
-            await _messageRepo.AddAsync(message);
-            return ChatMapper.ToDto(message);
-        }
+            // 5. Save message to database
+            var entity = new ChatMessage
+            {
+                ChatSessionId = session.Id,
+                Sender = "user",
+                Content = dto.Message
+            };
 
-        public async Task<List<ChatMessageDto>> GetSessionMessagesAsync(int sessionId)
-        {
-            var messages = await _messageRepo.GetMessagesBySessionIdAsync(sessionId);
-            return messages.Select(ChatMapper.ToDto).ToList();
-        }
-
-        public async Task EndSessionAsync(int sessionId)
-        {
-            var session = await _sessionRepo.GetByIdAsync(sessionId);
-            if (session == null) return;
-
-            session.IsActive = false;
-            session.EndedAt = DateTime.UtcNow;
-            await _sessionRepo.UpdateAsync(session);
-        }
-
-        public async Task<ChatSessionDto?> GetActiveSessionByAdminTelegramIdAsync(long telegramUserId)
-        {
-            var session = await _sessionRepo.GetActiveSessionByAdminTelegramIdAsync(telegramUserId);
-            return session == null ? null : ChatMapper.ToDto(session);
+            await _messageRepo.SaveMessageAsync(entity);
         }
     }
 }

@@ -57,5 +57,15 @@ namespace NutvaCms.API.Controllers
                 return NotFound();
             return NoContent();
         }
+
+        [HttpGet("available")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAvailableAdmin()
+        {
+            var admin = await _chatAdminService.GetAvailableAdminAsync();
+            if (admin == null)
+                return NotFound("No available admin at the moment.");
+            return Ok(admin);
+        }
     }
 }

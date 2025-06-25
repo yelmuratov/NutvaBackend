@@ -1,6 +1,6 @@
 using NutvaCms.Application.Interfaces;
 using NutvaCms.Domain.Entities;
-using NutvaCms.Persistence.DbContexts; // Adjust to your actual DbContext namespace
+using NutvaCms.Persistence.DbContexts; 
 using Microsoft.EntityFrameworkCore;
 
 namespace NutvaCms.Infrastructure.Repositories
@@ -46,6 +46,14 @@ namespace NutvaCms.Infrastructure.Repositories
         {
             return await _context.ChatAdmins
                 .FirstOrDefaultAsync(a => a.TelegramUserId == telegramUserId);
+        }
+
+        public async Task<ChatAdmin?> GetAvailableAdminAsync()
+        {
+            return await _context.ChatAdmins
+                .Where(a => a.IsOnline && !a.IsBusy)
+                .OrderBy(a => a.Id)
+                .FirstOrDefaultAsync();
         }
     }
 }

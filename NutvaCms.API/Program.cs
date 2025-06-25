@@ -13,6 +13,7 @@ using NutvaCms.API.Hubs;
 using NutvaCms.Application.Settings;
 using NutvaCms.API.Services;
 using NutvaCms.API.Settings;
+using NutvaCms.Application.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +67,7 @@ builder.Services.AddScoped<ITrackingPixelService, TrackingPixelService>();
 builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
 builder.Services.AddScoped<IBlogPostService, BlogPostService>();
 builder.Services.AddScoped<IChatAdminService, ChatAdminService>();
+builder.Services.AddScoped<IChatMapper, ChatMapper>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddSingleton<TelegramService>();
 builder.Services.AddSingleton<DocxReaderService>();

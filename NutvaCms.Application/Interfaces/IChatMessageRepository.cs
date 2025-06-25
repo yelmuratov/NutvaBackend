@@ -4,8 +4,7 @@ namespace NutvaCms.Application.Interfaces
 {
     public interface IChatMessageRepository
     {
-        Task<ChatMessage?> GetByIdAsync(int id);
-        Task<List<ChatMessage>> GetMessagesBySessionIdAsync(int sessionId);
-        Task AddAsync(ChatMessage message);
+        Task SaveMessageAsync(ChatMessage message);
+        Task<List<ChatMessage>> GetMessagesBySessionAsync(Guid sessionId);
     }
 }

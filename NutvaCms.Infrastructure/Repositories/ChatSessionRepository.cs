@@ -14,60 +14,36 @@ namespace NutvaCms.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<ChatSession?> GetByIdAsync(int id)
+        public async Task<ChatSession> GetActiveSessionAsync(string anonymousId)
         {
             return await _context.ChatSessions
-                .Include(s => s.ChatAdmin)
                 .Include(s => s.Messages)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.AnonymousId == anonymousId && !s.IsClosed);
         }
 
-        public async Task<List<ChatSession>> GetAllAsync()
+        public async Task<ChatSession> CreateSessionAsync(string anonymousId, int adminId)
         {
-            return await _context.ChatSessions
-                .Include(s => s.ChatAdmin)
-                .Include(s => s.Messages)
-                .ToListAsync();
-        }
+            var session = new ChatSession
+            {
+                AnonymousId = anonymousId,
+                AdminId = adminId
+            };
 
-        public async Task AddAsync(ChatSession session)
-        {
-            await _context.ChatSessions.AddAsync(session);
+            _context.ChatSessions.Add(session);
             await _context.SaveChangesAsync();
+            return session;
         }
 
-        public async Task UpdateAsync(ChatSession session)
+        public async Task EndSessionAsync(Guid sessionId)
         {
-            _context.ChatSessions.Update(session);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<List<ChatSession>> GetActiveSessionsAsync()
-        {
-            return await _context.ChatSessions
-                .Where(s => s.IsActive)
-                .Include(s => s.ChatAdmin)
-                .Include(s => s.Messages)
-                .ToListAsync();
-        }
-
-        public async Task<ChatSession?> GetActiveSessionByUserAsync(string userIdentifier)
-        {
-            return await _context.ChatSessions
-                .Include(s => s.Messages)
-                .Include(s => s.ChatAdmin)
-                .FirstOrDefaultAsync(s => s.UserIdentifier == userIdentifier && s.IsActive);
-        }
-
-        public async Task<ChatSession?> GetActiveSessionByAdminTelegramIdAsync(long telegramUserId)
-        {
-            return await _context.ChatSessions
-                .Include(s => s.Messages)
-                .Include(s => s.ChatAdmin)
-                .FirstOrDefaultAsync(s =>
-                    s.IsActive
-                    && s.ChatAdmin != null
-                    && s.ChatAdmin.TelegramUserId == telegramUserId);
+            var session = await _context.ChatSessions.FindAsync(sessionId);
+            if (session != null)
+            {
+                session.IsClosed = true;
+                session.EndedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
         }
     }
+
 }

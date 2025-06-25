@@ -53,18 +53,6 @@ namespace NutvaCms.Persistence.DbContexts
             modelBuilder.Entity<Banner>().OwnsOne(b => b.En);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Uz);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Ru);
-
-
-            modelBuilder.Entity<ChatSession>()
-                .HasMany(s => s.Messages)
-                .WithOne(m => m.ChatSession)
-                .HasForeignKey(m => m.ChatSessionId);
-
-            modelBuilder.Entity<ChatSession>()
-                .HasOne(s => s.ChatAdmin)
-                .WithMany()
-                .HasForeignKey(s => s.ChatAdminId)
-                .OnDelete(DeleteBehavior.SetNull);
         }
 
     }

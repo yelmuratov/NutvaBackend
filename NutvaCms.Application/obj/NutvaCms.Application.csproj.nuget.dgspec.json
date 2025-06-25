@@ -74,7 +74,7 @@
             },
             "Telegram.Bot": {
               "target": "Package",
-              "version": "[18.1.7, )"
+              "version": "[18.0.0, )"
             }
           },
           "imports": [

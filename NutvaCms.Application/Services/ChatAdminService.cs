@@ -59,5 +59,11 @@ namespace NutvaCms.Application.Services
             var admin = await _repository.GetByTelegramUserIdAsync(telegramUserId);
             return admin == null ? null : ChatAdminMapper.ToDto(admin);
         }
+
+        public async Task<ChatAdminDto?> GetAvailableAdminAsync()
+        {
+            var admin = await _repository.GetAvailableAdminAsync();
+            return admin == null ? null : ChatAdminMapper.ToDto(admin);
+        }
     }
 }

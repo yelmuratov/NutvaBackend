@@ -573,7 +573,7 @@
           }
         }
       },
-      "Newtonsoft.Json/13.0.1": {
+      "Newtonsoft.Json/12.0.2": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/Newtonsoft.Json.dll": {
@@ -682,18 +682,18 @@
           }
         }
       },
-      "Telegram.Bot/19.0.0": {
+      "Telegram.Bot/18.0.0": {
         "type": "package",
         "dependencies": {
-          "Newtonsoft.Json": "13.0.1"
+          "Newtonsoft.Json": "12.0.2"
         },
         "compile": {
-          "lib/net6.0/Telegram.Bot.dll": {
+          "lib/netcoreapp3.1/Telegram.Bot.dll": {
             "related": ".pdb;.xml"
           }
         },
         "runtime": {
-          "lib/net6.0/Telegram.Bot.dll": {
+          "lib/netcoreapp3.1/Telegram.Bot.dll": {
             "related": ".pdb;.xml"
           }
         }
@@ -1515,10 +1515,10 @@
         "microsoft.net.http.headers.nuspec"
       ]
     },
-    "Newtonsoft.Json/13.0.1": {
-      "sha512": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A==",
+    "Newtonsoft.Json/12.0.2": {
+      "sha512": "rTK0s2EKlfHsQsH6Yx2smvcTCeyoDNgCW7FEYyV01drPlh2T243PR2DiDXqtC5N4GDm4Ma/lkxfW5a/4793vbA==",
       "type": "package",
-      "path": "newtonsoft.json/13.0.1",
+      "path": "newtonsoft.json/12.0.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1537,9 +1537,12 @@
         "lib/netstandard1.3/Newtonsoft.Json.xml",
         "lib/netstandard2.0/Newtonsoft.Json.dll",
         "lib/netstandard2.0/Newtonsoft.Json.xml",
-        "newtonsoft.json.13.0.1.nupkg.sha512",
-        "newtonsoft.json.nuspec",
-        "packageIcon.png"
+        "lib/portable-net40+sl5+win8+wp8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net40+sl5+win8+wp8+wpa81/Newtonsoft.Json.xml",
+        "lib/portable-net45+win8+wp8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net45+win8+wp8+wpa81/Newtonsoft.Json.xml",
+        "newtonsoft.json.12.0.2.nupkg.sha512",
+        "newtonsoft.json.nuspec"
       ]
     },
     "SixLabors.ImageSharp/3.1.8": {
@@ -1696,21 +1699,21 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Telegram.Bot/19.0.0": {
-      "sha512": "Q16IOitgjGoaJOuqgKQy0FeF+hr/ncmlX2esrhCC7aiyhSX7roYEriWaGAHkQZR8QzbImjFfl4eQh2IxcnOrPg==",
+    "Telegram.Bot/18.0.0": {
+      "sha512": "BD0UchUXINymCGS+1O1tv2enCRyv+VbSJQAgfnueTZs3j7K4XXyJyW0CgyJleTrqB1oq1hS1ux6gBpi3Ajp+ZQ==",
       "type": "package",
-      "path": "telegram.bot/19.0.0",
+      "path": "telegram.bot/18.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "lib/net6.0/Telegram.Bot.dll",
-        "lib/net6.0/Telegram.Bot.pdb",
-        "lib/net6.0/Telegram.Bot.xml",
+        "lib/netcoreapp3.1/Telegram.Bot.dll",
+        "lib/netcoreapp3.1/Telegram.Bot.pdb",
+        "lib/netcoreapp3.1/Telegram.Bot.xml",
         "lib/netstandard2.0/Telegram.Bot.dll",
         "lib/netstandard2.0/Telegram.Bot.pdb",
         "lib/netstandard2.0/Telegram.Bot.xml",
         "package-icon.png",
-        "telegram.bot.19.0.0.nupkg.sha512",
+        "telegram.bot.18.0.0.nupkg.sha512",
         "telegram.bot.nuspec"
       ]
     },
@@ -1729,7 +1732,7 @@
       "NutvaCms.Domain >= 1.0.0",
       "SixLabors.ImageSharp >= 3.1.8",
       "System.IdentityModel.Tokens.Jwt >= 8.9.0",
-      "Telegram.Bot >= 18.1.7"
+      "Telegram.Bot >= 18.0.0"
     ]
   },
   "packageFolders": {
@@ -1805,7 +1808,7 @@
           },
           "Telegram.Bot": {
             "target": "Package",
-            "version": "[18.1.7, )"
+            "version": "[18.0.0, )"
           }
         },
         "imports": [
@@ -1830,17 +1833,5 @@
         "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "NutvaCms.Application depends on Telegram.Bot (>= 18.1.7) but Telegram.Bot 18.1.7 was not found. Telegram.Bot 19.0.0 was resolved instead.",
-      "libraryId": "Telegram.Bot",
-      "targetGraphs": [
-        "net9.0"
-      ]
-    }
-  ]
+  }
 }

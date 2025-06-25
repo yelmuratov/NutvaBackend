@@ -2,15 +2,20 @@ namespace NutvaCms.Domain.Entities
 {
     public class ChatSession
     {
-        public int Id { get; set; }
-        public int? ChatAdminId { get; set; }   // nullable for waiting state
-        public ChatAdmin? ChatAdmin { get; set; }
-        public string UserIdentifier { get; set; } = null!; // e.g., website user ID or connection ID
-        public bool IsActive { get; set; } = true;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        // anonymous user reference (stored in cookie or temporary)
+        public string AnonymousId { get; set; }
+
+        // related Telegram Admin
+        public int AdminId { get; set; }
+        public ChatAdmin Admin { get; set; }
+
+        public bool IsClosed { get; set; } = false;
+
+        public DateTime StartedAt { get; set; } = DateTime.UtcNow;
         public DateTime? EndedAt { get; set; }
 
-        public List<ChatMessage> Messages { get; set; } = new();
+        public ICollection<ChatMessage> Messages { get; set; }
     }
 }
-    
