@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>SignalR Test</title>
+  <title>SignalR Test html</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
   <style>
     #loader {
@@ -24,7 +24,7 @@
 
   <script>
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5000/chathub")
+      .withUrl("https://www.nutvahealth.uz/chathub")
       .build();
 
     connection.on("ReceiveAnswer", (msg) => {
