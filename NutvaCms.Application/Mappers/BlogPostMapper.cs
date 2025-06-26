@@ -68,7 +68,7 @@ public static class BlogPostMapper
             Uz = MapTranslation(dto.Uz),
             Ru = MapTranslation(dto.Ru),
 
-            Media = new List<BlogPostMedia>() // media handled after file processing in service
+            Media = new List<BlogPostMedia>() // handled in service
         };
     }
 
@@ -76,9 +76,40 @@ public static class BlogPostMapper
     {
         entity.UpdatedAt = DateTime.UtcNow;
 
-        entity.En = MapTranslation(dto.En);
-        entity.Uz = MapTranslation(dto.Uz);
-        entity.Ru = MapTranslation(dto.Ru);
+        if (dto.Published.HasValue)
+            entity.Published = dto.Published.Value;
+
+        if (dto.En != null)
+            ApplyTranslationUpdate(entity.En, dto.En);
+
+        if (dto.Uz != null)
+            ApplyTranslationUpdate(entity.Uz, dto.Uz);
+
+        if (dto.Ru != null)
+            ApplyTranslationUpdate(entity.Ru, dto.Ru);
+
+        // Media logic handled in service
+    }
+
+    private static void ApplyTranslationUpdate(BlogPostTranslation existing, TranslationInputDto dto)
+    {
+        if (dto.Title != null)
+            existing.Title = dto.Title;
+
+        if (dto.Subtitle != null)
+            existing.Subtitle = dto.Subtitle;
+
+        if (dto.Content != null)
+            existing.Content = dto.Content;
+
+        if (dto.MetaTitle != null)
+            existing.MetaTitle = dto.MetaTitle;
+
+        if (dto.MetaDescription != null)
+            existing.MetaDescription = dto.MetaDescription;
+
+        if (dto.MetaKeywords != null)
+            existing.MetaKeywords = dto.MetaKeywords;
     }
 
     private static BlogPostTranslation MapTranslation(TranslationInputDto dto)

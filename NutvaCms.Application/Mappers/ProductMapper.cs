@@ -27,15 +27,43 @@ namespace NutvaCms.Application.Mappers
 
         public static void ApplyUpdateDto(Product product, UpdateProductDto dto, List<string> imageUrls)
         {
-            product.Price = dto.Price;
-            product.Slug = dto.Slug;
-            product.ImageUrls = imageUrls;
+            if (dto.Price.HasValue)
+                product.Price = dto.Price.Value;
 
-            product.En = MapTranslation(dto.En);
-            product.Uz = MapTranslation(dto.Uz);
-            product.Ru = MapTranslation(dto.Ru);
+            if (dto.Slug != null)
+                product.Slug = dto.Slug;
+
+            if (dto.Images != null && dto.Images.Any())
+                product.ImageUrls = imageUrls;
+
+            if (dto.En != null)
+                ApplyTranslationUpdate(product.En, dto.En);
+
+            if (dto.Uz != null)
+                ApplyTranslationUpdate(product.Uz, dto.Uz);
+
+            if (dto.Ru != null)
+                ApplyTranslationUpdate(product.Ru, dto.Ru);
 
             product.UpdatedAt = DateTime.UtcNow;
+        }
+
+        private static void ApplyTranslationUpdate(ProductTranslation existing, ProductTranslationInputDto incoming)
+        {
+            if (incoming.Name != null)
+                existing.Name = incoming.Name;
+
+            if (incoming.Description != null)
+                existing.Description = incoming.Description;
+
+            if (incoming.MetaTitle != null)
+                existing.MetaTitle = incoming.MetaTitle;
+
+            if (incoming.MetaDescription != null)
+                existing.MetaDescription = incoming.MetaDescription;
+
+            if (incoming.MetaKeywords != null)
+                existing.MetaKeywords = incoming.MetaKeywords;
         }
 
         public static ProductSummaryDto ToSummaryDto(Product product, LanguageCode lang)

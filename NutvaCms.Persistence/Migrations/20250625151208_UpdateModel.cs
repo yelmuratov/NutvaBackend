@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NutvaCms.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialTable : Migration
+    public partial class UpdateModel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -97,6 +97,7 @@ namespace NutvaCms.Persistence.Migrations
                     FullName = table.Column<string>(type: "text", nullable: false),
                     TelegramUserId = table.Column<long>(type: "bigint", nullable: false),
                     IsBusy = table.Column<bool>(type: "boolean", nullable: false),
+                    IsOnline = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -190,23 +191,22 @@ namespace NutvaCms.Persistence.Migrations
                 name: "ChatSessions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ChatAdminId = table.Column<int>(type: "integer", nullable: true),
-                    UserIdentifier = table.Column<string>(type: "text", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    AnonymousId = table.Column<string>(type: "text", nullable: false),
+                    AdminId = table.Column<int>(type: "integer", nullable: false),
+                    IsClosed = table.Column<bool>(type: "boolean", nullable: false),
+                    StartedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ChatSessions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChatSessions_ChatAdmins_ChatAdminId",
-                        column: x => x.ChatAdminId,
+                        name: "FK_ChatSessions_ChatAdmins_AdminId",
+                        column: x => x.AdminId,
                         principalTable: "ChatAdmins",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -237,9 +237,9 @@ namespace NutvaCms.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ChatSessionId = table.Column<int>(type: "integer", nullable: false),
+                    ChatSessionId = table.Column<Guid>(type: "uuid", nullable: false),
                     Sender = table.Column<string>(type: "text", nullable: false),
-                    Text = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
                     SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -264,9 +264,9 @@ namespace NutvaCms.Persistence.Migrations
                 column: "ChatSessionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatSessions_ChatAdminId",
+                name: "IX_ChatSessions_AdminId",
                 table: "ChatSessions",
-                column: "ChatAdminId");
+                column: "AdminId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PurchaseRequests_ProductId",

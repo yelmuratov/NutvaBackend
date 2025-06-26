@@ -14,6 +14,7 @@ using NutvaCms.Application.Settings;
 using NutvaCms.API.Services;
 using NutvaCms.API.Settings;
 using NutvaCms.Application.Mappers;
+using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +45,13 @@ builder.Services.Configure<GeminiSettings>(
     builder.Configuration.GetSection("Gemini"));
 
 builder.Services.Configure<TelegramSettings>(builder.Configuration.GetSection("TelegramSettings"));
+builder.Services.AddSingleton<ITelegramBotClient>(provider =>
+{
+    var config = provider.GetRequiredService<IConfiguration>();
+    var token = config.GetSection("TelegramSettings")["BotToken"];
+    return new TelegramBotClient(token);
+});
+
 
 // Repositories & Services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

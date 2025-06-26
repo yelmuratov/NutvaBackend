@@ -20,11 +20,38 @@ public static class BannerMapper
 
     public static void ApplyUpdateDto(Banner banner, UpdateBannerDto dto, List<string> imageUrls)
     {
-        banner.Link = dto.Link;
-        banner.ImageUrls = imageUrls;
-        banner.En = MapTranslation(dto.En);
-        banner.Uz = MapTranslation(dto.Uz);
-        banner.Ru = MapTranslation(dto.Ru);
+        if (dto.Link != null)
+            banner.Link = dto.Link;
+
+        if (dto.En != null)
+            ApplyTranslationUpdate(banner.En, dto.En);
+
+        if (dto.Uz != null)
+            ApplyTranslationUpdate(banner.Uz, dto.Uz);
+
+        if (dto.Ru != null)
+            ApplyTranslationUpdate(banner.Ru, dto.Ru);
+
+        if (dto.Images != null && dto.Images.Any())
+            banner.ImageUrls = imageUrls;
+    }
+
+    private static void ApplyTranslationUpdate(BannerTranslation existing, BannerTranslationInputDto incoming)
+    {
+        if (incoming.Title != null)
+            existing.Title = incoming.Title;
+
+        if (incoming.Subtitle != null)
+            existing.Subtitle = incoming.Subtitle;
+
+        if (incoming.MetaTitle != null)
+            existing.MetaTitle = incoming.MetaTitle;
+
+        if (incoming.MetaDescription != null)
+            existing.MetaDescription = incoming.MetaDescription;
+
+        if (incoming.MetaKeywords != null)
+            existing.MetaKeywords = incoming.MetaKeywords;
     }
 
     public static BannerSummaryDto ToSummaryDto(Banner banner, LanguageCode lang)

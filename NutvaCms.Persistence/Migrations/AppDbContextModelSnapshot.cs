@@ -155,8 +155,12 @@ namespace NutvaCms.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ChatSessionId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("ChatSessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Sender")
                         .IsRequired()
@@ -164,10 +168,6 @@ namespace NutvaCms.Persistence.Migrations
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -178,31 +178,30 @@ namespace NutvaCms.Persistence.Migrations
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.ChatSession", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int>("AdminId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ChatAdminId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("AnonymousId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsClosed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("UserIdentifier")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChatAdminId");
+                    b.HasIndex("AdminId");
 
                     b.ToTable("ChatSessions");
                 });
@@ -555,23 +554,24 @@ namespace NutvaCms.Persistence.Migrations
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.ChatMessage", b =>
                 {
-                    b.HasOne("NutvaCms.Domain.Entities.ChatSession", "ChatSession")
+                    b.HasOne("NutvaCms.Domain.Entities.ChatSession", "Session")
                         .WithMany("Messages")
                         .HasForeignKey("ChatSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ChatSession");
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.ChatSession", b =>
                 {
-                    b.HasOne("NutvaCms.Domain.Entities.ChatAdmin", "ChatAdmin")
+                    b.HasOne("NutvaCms.Domain.Entities.ChatAdmin", "Admin")
                         .WithMany()
-                        .HasForeignKey("ChatAdminId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("ChatAdmin");
+                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>

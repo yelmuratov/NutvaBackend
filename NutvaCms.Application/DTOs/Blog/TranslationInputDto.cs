@@ -2,12 +2,10 @@ namespace NutvaCms.Application.DTOs.Blog;
 
 public class TranslationInputDto
 {
-    public string Title { get; set; } = null!;
+    public string? Title { get; set; }
     public string? Subtitle { get; set; }
-    public string Content { get; set; } = null!;
-
-    // SEO fields
-    public string MetaTitle { get; set; } = null!;
-    public string MetaDescription { get; set; } = null!;
-    public string MetaKeywords { get; set; } = null!;
+    public string? Content { get; set; }
+    public string? MetaTitle { get; set; }
+    public string? MetaDescription { get; set; }
+    public string? MetaKeywords { get; set; }
 }

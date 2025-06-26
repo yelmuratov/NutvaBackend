@@ -39,6 +39,10 @@ namespace NutvaCms.Persistence.DbContexts
                     v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
                 );
 
+            modelBuilder.Entity<ChatSession>()
+    .Property(cs => cs.Id)
+    .HasDefaultValueSql("gen_random_uuid()");
+
             // ✅ Product Translations
             modelBuilder.Entity<Product>().OwnsOne(p => p.En);
             modelBuilder.Entity<Product>().OwnsOne(p => p.Uz);
