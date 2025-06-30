@@ -1,13 +1,13 @@
 using NutvaCms.Application.DTOs;
 using NutvaCms.Domain.Entities;
 
-namespace NutvaCms.Application.Interfaces;
-
-public interface IStatisticService
+namespace NutvaCms.Application.Interfaces
 {
-    Task TrackVisitAsync();
-    Task<bool> AddPurchaseRequestAsync(PurchaseRequestDto dto); // return bool
-    Task<IEnumerable<PurchaseRequest>> GetAllPurchaseRequestsAsync();
-    Task<IEnumerable<SiteStatistic>> GetSiteStatisticsAsync();
+    public interface IStatisticService
+    {
+        Task TrackVisitAsync();
+        Task<bool> AddPurchaseRequestAsync(PurchaseRequestDto dto, string lang = "Uz"); // now supports language selection
+        Task<IEnumerable<PurchaseRequest>> GetAllPurchaseRequestsAsync();
+        Task<IEnumerable<SiteStatistic>> GetSiteStatisticsAsync();
+    }
 }
-

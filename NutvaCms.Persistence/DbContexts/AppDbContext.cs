@@ -13,6 +13,7 @@ namespace NutvaCms.Persistence.DbContexts
         public DbSet<Admin> Admins => Set<Admin>();
         public DbSet<SiteStatistic> SiteStatistics => Set<SiteStatistic>();
         public DbSet<PurchaseRequest> PurchaseRequests => Set<PurchaseRequest>();
+        public DbSet<PurchaseRequestProduct> PurchaseRequestProducts { get; set; }
         public DbSet<TrackingPixel> TrackingPixels => Set<TrackingPixel>();
         public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
         public DbSet<BlogPostMedia> BlogPostMedia => Set<BlogPostMedia>();
@@ -40,8 +41,8 @@ namespace NutvaCms.Persistence.DbContexts
                 );
 
             modelBuilder.Entity<ChatSession>()
-    .Property(cs => cs.Id)
-    .HasDefaultValueSql("gen_random_uuid()");
+            .Property(cs => cs.Id)
+            .HasDefaultValueSql("gen_random_uuid()");
 
             // ✅ Product Translations
             modelBuilder.Entity<Product>().OwnsOne(p => p.En);
@@ -57,6 +58,11 @@ namespace NutvaCms.Persistence.DbContexts
             modelBuilder.Entity<Banner>().OwnsOne(b => b.En);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Uz);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Ru);
+
+            modelBuilder.Entity<PurchaseRequest>()
+            .HasMany(pr => pr.Products)
+            .WithOne(p => p.PurchaseRequest)
+            .HasForeignKey(p => p.PurchaseRequestId);
         }
 
     }

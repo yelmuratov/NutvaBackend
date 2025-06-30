@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NutvaCms.Persistence.DbContexts;
@@ -11,9 +12,11 @@ using NutvaCms.Persistence.DbContexts;
 namespace NutvaCms.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250629175810_AddFieldsToPurchaseRequest")]
+    partial class AddFieldsToPurchaseRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,6 +272,9 @@ namespace NutvaCms.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Region")
                         .IsRequired()
                         .HasColumnType("text");
@@ -278,29 +284,9 @@ namespace NutvaCms.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("PurchaseRequests");
-                });
-
-            modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequestProduct", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PurchaseRequestId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PurchaseRequestId");
-
-                    b.ToTable("PurchaseRequestProducts");
                 });
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.SiteStatistic", b =>
@@ -717,15 +703,15 @@ namespace NutvaCms.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequestProduct", b =>
+            modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequest", b =>
                 {
-                    b.HasOne("NutvaCms.Domain.Entities.PurchaseRequest", "PurchaseRequest")
-                        .WithMany("Products")
-                        .HasForeignKey("PurchaseRequestId")
+                    b.HasOne("NutvaCms.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("PurchaseRequest");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("NutvaCms.Domain.Entities.BlogPost", b =>
@@ -736,11 +722,6 @@ namespace NutvaCms.Persistence.Migrations
             modelBuilder.Entity("NutvaCms.Domain.Entities.ChatSession", b =>
                 {
                     b.Navigation("Messages");
-                });
-
-            modelBuilder.Entity("NutvaCms.Domain.Entities.PurchaseRequest", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }
