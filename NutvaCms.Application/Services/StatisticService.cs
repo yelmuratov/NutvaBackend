@@ -112,7 +112,8 @@ namespace NutvaCms.Application.Services
                         var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
                         string discountLabel = boxDiscount?.DiscountLabel ?? "0%";
 
-                        decimal discountedUnit = CalculateDiscountedPrice(product.Price, discountLabel);
+                        decimal basePrice = Math.Abs(product.Price); // Prevent negative
+                        decimal discountedUnit = CalculateDiscountedPrice(basePrice, discountLabel);
                         decimal itemTotal = discountedUnit * prod.Quantity;
                         totalPrice += itemTotal;
 
@@ -142,6 +143,7 @@ namespace NutvaCms.Application.Services
             return true;
         }
 
+
         public async Task<IEnumerable<PurchaseRequestDto>> GetAllPurchaseRequestsAsync()
         {
             var entities = await _repo.GetAllPurchaseRequestsAsync();
@@ -161,7 +163,6 @@ namespace NutvaCms.Application.Services
                 }).ToList()
             });
         }
-
         public async Task<IEnumerable<SiteStatisticDto>> GetSiteStatisticsAsync()
         {
             var entities = await _repo.GetSiteStatisticsAsync();
