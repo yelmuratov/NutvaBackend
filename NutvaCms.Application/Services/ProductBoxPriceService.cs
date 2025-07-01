@@ -1,4 +1,5 @@
 namespace NutvaCms.Application.Services;
+
 using NutvaCms.Application.DTOs;
 using NutvaCms.Application.Interfaces;
 using NutvaCms.Domain.Entities;
@@ -36,15 +37,23 @@ public class ProductBoxPriceService : IProductBoxPriceService
 
     public async Task<ProductBoxPriceDto?> GetByProductAndBoxCountAsync(Guid productId, int boxCount)
     {
-        var entity = await _repo.GetByProductAndBoxCountAsync(productId, boxCount);
-        return entity == null ? null : new ProductBoxPriceDto
+        var allDiscounts = await _repo.GetByProductAsync(productId);
+
+        // Get the highest BoxCount <= requested boxCount
+        var matched = allDiscounts
+            .Where(x => x.BoxCount <= boxCount)
+            .OrderByDescending(x => x.BoxCount)
+            .FirstOrDefault();
+
+        return matched == null ? null : new ProductBoxPriceDto
         {
-            Id = entity.Id,
-            ProductId = entity.ProductId,
-            BoxCount = entity.BoxCount,
-            DiscountLabel = entity.DiscountLabel
+            Id = matched.Id,
+            ProductId = matched.ProductId,
+            BoxCount = matched.BoxCount,
+            DiscountLabel = matched.DiscountLabel
         };
     }
+
 
     public async Task<ProductBoxPriceDto> CreateAsync(CreateProductBoxPriceDto dto)
     {
