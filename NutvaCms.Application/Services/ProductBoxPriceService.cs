@@ -20,7 +20,7 @@ public class ProductBoxPriceService : IProductBoxPriceService
                 Id = x.Id,
                 ProductId = x.ProductId,
                 BoxCount = x.BoxCount,
-                DiscountLabel = x.DiscountLabel
+                DiscountLabel = NormalizeLabel(x.DiscountLabel)
             }).ToList();
 
     public async Task<ProductBoxPriceDto?> GetAsync(Guid id)
@@ -31,7 +31,7 @@ public class ProductBoxPriceService : IProductBoxPriceService
             Id = entity.Id,
             ProductId = entity.ProductId,
             BoxCount = entity.BoxCount,
-            DiscountLabel = entity.DiscountLabel
+            DiscountLabel = NormalizeLabel(entity.DiscountLabel)
         };
     }
 
@@ -39,7 +39,6 @@ public class ProductBoxPriceService : IProductBoxPriceService
     {
         var allDiscounts = await _repo.GetByProductAsync(productId);
 
-        // Get the highest BoxCount <= requested boxCount
         var matched = allDiscounts
             .Where(x => x.BoxCount <= boxCount)
             .OrderByDescending(x => x.BoxCount)
@@ -50,10 +49,9 @@ public class ProductBoxPriceService : IProductBoxPriceService
             Id = matched.Id,
             ProductId = matched.ProductId,
             BoxCount = matched.BoxCount,
-            DiscountLabel = matched.DiscountLabel
+            DiscountLabel = NormalizeLabel(matched.DiscountLabel)
         };
     }
-
 
     public async Task<ProductBoxPriceDto> CreateAsync(CreateProductBoxPriceDto dto)
     {
@@ -61,7 +59,7 @@ public class ProductBoxPriceService : IProductBoxPriceService
         {
             ProductId = dto.ProductId,
             BoxCount = dto.BoxCount,
-            DiscountLabel = dto.DiscountLabel
+            DiscountLabel = NormalizeLabel(dto.DiscountLabel)
         };
         await _repo.AddAsync(entity);
         return new ProductBoxPriceDto
@@ -77,9 +75,11 @@ public class ProductBoxPriceService : IProductBoxPriceService
     {
         var entity = await _repo.GetAsync(id);
         if (entity == null) throw new Exception("Not found!");
+
         entity.BoxCount = dto.BoxCount;
-        entity.DiscountLabel = dto.DiscountLabel;
+        entity.DiscountLabel = NormalizeLabel(dto.DiscountLabel);
         await _repo.UpdateAsync(entity);
+
         return new ProductBoxPriceDto
         {
             Id = entity.Id,
@@ -90,4 +90,16 @@ public class ProductBoxPriceService : IProductBoxPriceService
     }
 
     public async Task DeleteAsync(Guid id) => await _repo.DeleteAsync(id);
+
+    private string NormalizeLabel(string rawLabel)
+    {
+        if (string.IsNullOrWhiteSpace(rawLabel)) return "0%";
+
+        var match = System.Text.RegularExpressions.Regex.Match(rawLabel, @"\d+");
+        if (!match.Success) return "0%";
+
+        int parsed = int.Parse(match.Value);
+        parsed = Math.Clamp(parsed, 0, 100); // Ensure safe range
+        return $"{parsed}%";
+    }
 }
