@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NutvaCms.Persistence.DbContexts;
@@ -11,9 +12,11 @@ using NutvaCms.Persistence.DbContexts;
 namespace NutvaCms.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701050331_AddProductBoxPriceTable")]
+    partial class AddProductBoxPriceTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,31 +209,6 @@ namespace NutvaCms.Persistence.Migrations
                     b.ToTable("ChatSessions");
                 });
 
-            modelBuilder.Entity("NutvaCms.Domain.Entities.ContactForm", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ContactForms");
-                });
-
             modelBuilder.Entity("NutvaCms.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -275,8 +253,10 @@ namespace NutvaCms.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("DiscountLabel")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");

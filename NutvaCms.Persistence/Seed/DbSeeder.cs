@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NutvaCms.Persistence.DbContexts;
+using NutvaCms.Domain.Entities;
 
 namespace NutvaCms.Persistence.Seed;
 

@@ -63,6 +63,8 @@ builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 builder.Services.AddScoped<IChatAdminRepository, ChatAdminRepository>();
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
 builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+builder.Services.AddScoped<IProductBoxPriceRepository, ProductBoxPriceRepository>();
+builder.Services.AddScoped<IContactFormRepository, ContactFormRepository>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBannerService, BannerService>();
@@ -78,6 +80,8 @@ builder.Services.AddScoped<IChatMapper, ChatMapper>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddSingleton<TelegramService>();
 builder.Services.AddSingleton<DocxReaderService>();
+builder.Services.AddScoped<IContactFormService, ContactFormService>();
+builder.Services.AddScoped<IProductBoxPriceService, ProductBoxPriceService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

@@ -1,13 +1,12 @@
 using NutvaCms.Application.DTOs;
-using NutvaCms.Domain.Entities;
 
 namespace NutvaCms.Application.Interfaces
 {
     public interface IStatisticService
     {
         Task TrackVisitAsync();
-        Task<bool> AddPurchaseRequestAsync(PurchaseRequestDto dto, string lang = "Uz"); // now supports language selection
-        Task<IEnumerable<PurchaseRequest>> GetAllPurchaseRequestsAsync();
-        Task<IEnumerable<SiteStatistic>> GetSiteStatisticsAsync();
+        Task<bool> AddPurchaseRequestAsync(PurchaseRequestDto dto, string lang = "Uz"); // language selection supported
+        Task<IEnumerable<PurchaseRequestDto>> GetAllPurchaseRequestsAsync(); // ❗ Changed: returns DTOs, not entities
+        Task<IEnumerable<SiteStatisticDto>> GetSiteStatisticsAsync(); // ❗ RECOMMENDED: Use a DTO here too!
     }
 }
