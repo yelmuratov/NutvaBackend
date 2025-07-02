@@ -91,7 +91,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", builder =>
     {
         builder
-            .WithOrigins("http://127.0.0.1:5500") // 🔁 Adjust this if frontend changes
+            .WithOrigins(
+                "https://nutvahealth.uz",
+                "https://www.nutvahealth.uz"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
