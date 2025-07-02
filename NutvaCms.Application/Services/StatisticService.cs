@@ -75,10 +75,10 @@ namespace NutvaCms.Application.Services
                     {
                         string prodName = lang switch
                         {
-                            "Uz" => product.Uz.Name,
-                            "Ru" => product.Ru.Name,
-                            "En" => product.En.Name,
-                            _ => product.Uz.Name
+                            "Uz" => product.Uz?.Name ?? "Noma'lum mahsulot",
+                            "Ru" => product.Ru?.Name ?? "Неведомый продукт",
+                            "En" => product.En?.Name ?? "Unknown product",
+                            _ => product.Uz?.Name ?? "Noma'lum mahsulot"
                         };
                         productDict[prod.ProductId] = prodName;
                     }
@@ -88,7 +88,7 @@ namespace NutvaCms.Application.Services
                     }
                 }
 
-                // Start building Telegram message
+                // Build Telegram message
                 string message = $"📝 Yangi so‘rov saytdan\n" +
                                  $"🧍 Ism: {dto.BuyerName}\n" +
                                  $"📞 Telefon: {dto.Phone}\n" +
@@ -112,7 +112,7 @@ namespace NutvaCms.Application.Services
                         var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
                         string discountLabel = boxDiscount?.DiscountLabel ?? "0%";
 
-                        decimal basePrice = Math.Abs(product.Price); // Prevent negative
+                        decimal basePrice = Math.Abs(product.Price);
                         decimal discountedUnit = CalculateDiscountedPrice(basePrice, discountLabel);
                         decimal itemTotal = discountedUnit * prod.Quantity;
                         totalPrice += itemTotal;
@@ -135,14 +135,14 @@ namespace NutvaCms.Application.Services
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown
                 );
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                Console.WriteLine($"[Telegram Error] {ex.Message}");
+                return true; // still return true, because DB insert succeeded
             }
 
             return true;
         }
-
 
         public async Task<IEnumerable<PurchaseRequestDto>> GetAllPurchaseRequestsAsync()
         {
@@ -163,6 +163,7 @@ namespace NutvaCms.Application.Services
                 }).ToList()
             });
         }
+
         public async Task<IEnumerable<SiteStatisticDto>> GetSiteStatisticsAsync()
         {
             var entities = await _repo.GetSiteStatisticsAsync();
