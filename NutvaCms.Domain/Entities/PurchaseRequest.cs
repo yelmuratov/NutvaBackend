@@ -11,6 +11,7 @@ public class PurchaseRequest
     public string Phone { get; set; } = null!;
     public string Comment { get; set; } = string.Empty;
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
+    public decimal TotalPrice { get; set; } // ✅ NEW
 
     // Related order items
     public ICollection<PurchaseRequestProduct> Products { get; set; } = new List<PurchaseRequestProduct>();

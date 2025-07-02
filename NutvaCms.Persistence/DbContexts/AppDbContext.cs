@@ -7,7 +7,6 @@ namespace NutvaCms.Persistence.DbContexts
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        // ✅ All DbSets (Consistent, null-forgiving)
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Banner> Banners => Set<Banner>();
         public DbSet<Admin> Admins => Set<Admin>();
@@ -22,9 +21,10 @@ namespace NutvaCms.Persistence.DbContexts
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<ProductBoxPrice> ProductBoxPrices => Set<ProductBoxPrice>();
         public DbSet<ContactForm> ContactForms => Set<ContactForm>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // ✅ Product image list serialization
+            // Product image list
             modelBuilder.Entity<Product>()
                 .Property(p => p.ImageUrls)
                 .HasConversion(
@@ -32,7 +32,7 @@ namespace NutvaCms.Persistence.DbContexts
                     v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
                 );
 
-            // ✅ Banner image list serialization
+            // Banner image list
             modelBuilder.Entity<Banner>()
                 .Property(b => b.ImageUrls)
                 .HasConversion(
@@ -40,33 +40,38 @@ namespace NutvaCms.Persistence.DbContexts
                     v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
                 );
 
-            // ✅ ChatSession default UUID
+            // ChatSession UUID
             modelBuilder.Entity<ChatSession>()
                 .Property(cs => cs.Id)
                 .HasDefaultValueSql("gen_random_uuid()");
 
-            // ✅ Product Translations
+            // Translations
             modelBuilder.Entity<Product>().OwnsOne(p => p.En);
             modelBuilder.Entity<Product>().OwnsOne(p => p.Uz);
             modelBuilder.Entity<Product>().OwnsOne(p => p.Ru);
-
-            // ✅ BlogPost Translations
             modelBuilder.Entity<BlogPost>().OwnsOne(b => b.En);
             modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Uz);
             modelBuilder.Entity<BlogPost>().OwnsOne(b => b.Ru);
-
-            // ✅ Banner Translations
             modelBuilder.Entity<Banner>().OwnsOne(b => b.En);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Uz);
             modelBuilder.Entity<Banner>().OwnsOne(b => b.Ru);
 
-            // ✅ PurchaseRequest to PurchaseRequestProduct relationship
+            // Purchase relationship
             modelBuilder.Entity<PurchaseRequest>()
                 .HasMany(pr => pr.Products)
                 .WithOne(p => p.PurchaseRequest)
                 .HasForeignKey(p => p.PurchaseRequestId);
 
-            // ✅ Cascade Delete: Product -> ProductBoxPrice
+            // ✅ New: Decimal type config
+            modelBuilder.Entity<PurchaseRequest>()
+                .Property(p => p.TotalPrice)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<PurchaseRequestProduct>()
+                .Property(p => p.DiscountedPrice)
+                .HasColumnType("decimal(18,2)");
+
+            // Cascade delete: product -> box prices
             modelBuilder.Entity<ProductBoxPrice>()
                 .HasOne(pbp => pbp.Product)
                 .WithMany(p => p.BoxPrices)

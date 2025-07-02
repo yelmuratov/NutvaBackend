@@ -33,6 +33,7 @@ public class StatisticRepository : IStatisticRepository
         await _context.SaveChangesAsync();
     }
 
+    // ✅ Legacy version - still usable
     public async Task<bool> AddPurchaseRequestAsync(PurchaseRequestDto dto)
     {
         if (dto.Products == null || dto.Products.Count == 0)
@@ -68,6 +69,16 @@ public class StatisticRepository : IStatisticRepository
         return true;
     }
 
+    // ✅ New method to persist full PurchaseRequest entity (already calculated)
+    public async Task<bool> AddPurchaseRequestEntityAsync(PurchaseRequest entity)
+    {
+        if (entity.Products == null || !entity.Products.Any())
+            return false;
+
+        await _context.PurchaseRequests.AddAsync(entity);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 
     public async Task<IEnumerable<PurchaseRequest>> GetAllPurchaseRequestsAsync()
     {

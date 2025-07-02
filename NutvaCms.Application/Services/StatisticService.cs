@@ -2,12 +2,12 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.Configuration;
 using NutvaCms.Application.DTOs;
 using NutvaCms.Application.Interfaces;
 using NutvaCms.Domain.Entities;
-using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
-using System.Text.RegularExpressions;
 
 namespace NutvaCms.Application.Services
 {
@@ -22,8 +22,7 @@ namespace NutvaCms.Application.Services
             IStatisticRepository repo,
             IConfiguration config,
             IProductService productService,
-            IProductBoxPriceService boxPriceService
-        )
+            IProductBoxPriceService boxPriceService)
         {
             _repo = repo;
             _config = config;
@@ -38,57 +37,79 @@ namespace NutvaCms.Application.Services
             if (string.IsNullOrWhiteSpace(discountLabel) || discountLabel == "0%")
                 return productPrice;
 
-            var percentMatch = Regex.Match(discountLabel, @"\d+");
-            if (!percentMatch.Success)
-                return productPrice;
-
-            var percent = decimal.Parse(percentMatch.Value);
-            var discountedPrice = productPrice * (1 - percent / 100m);
-            return Math.Round(discountedPrice, 0);
-        }
-
-        private int GetDiscountPercent(string discountLabel)
-        {
-            if (string.IsNullOrWhiteSpace(discountLabel)) return 0;
             var match = Regex.Match(discountLabel, @"\d+");
-            return match.Success ? int.Parse(match.Value) : 0;
+            if (!match.Success) return productPrice;
+
+            var percent = decimal.Parse(match.Value);
+            var discounted = productPrice * (1 - percent / 100m);
+            return Math.Round(discounted, 0);
         }
 
         public async Task<bool> AddPurchaseRequestAsync(PurchaseRequestDto dto, string lang = "Uz")
         {
-            var success = await _repo.AddPurchaseRequestAsync(dto);
-            if (!success)
-                return false;
+            if (dto.Products == null || dto.Products.Count == 0) return false;
 
+            decimal totalPrice = 0;
+            var productEntities = new List<PurchaseRequestProduct>();
+            var productNameMap = new Dictionary<Guid, string>();
+            var productPriceMap = new Dictionary<Guid, decimal>();
+
+            foreach (var prod in dto.Products)
+            {
+                var product = await _productService.GetByIdAsync(prod.ProductId);
+                if (product == null) continue;
+
+                var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
+                string discountLabel = boxDiscount?.DiscountLabel ?? "0%";
+
+                decimal basePrice = Math.Abs(product.Price);
+                decimal discountedUnitPrice = CalculateDiscountedPrice(basePrice, discountLabel);
+                decimal itemTotal = discountedUnitPrice * prod.Quantity;
+
+                totalPrice += itemTotal;
+
+                productEntities.Add(new PurchaseRequestProduct
+                {
+                    ProductId = prod.ProductId,
+                    Quantity = prod.Quantity,
+                    DiscountedPrice = discountedUnitPrice
+                });
+
+                productPriceMap[prod.ProductId] = basePrice;
+
+                string prodName = lang switch
+                {
+                    "Uz" => product.Uz?.Name ?? "Noma'lum mahsulot",
+                    "Ru" => product.Ru?.Name ?? "Неизвестный продукт",
+                    "En" => product.En?.Name ?? "Unknown product",
+                    _ => product.Uz?.Name ?? "Noma'lum mahsulot"
+                };
+                productNameMap[prod.ProductId] = prodName;
+            }
+
+            var request = new PurchaseRequest
+            {
+                BuyerName = dto.BuyerName,
+                Age = dto.Age,
+                ForWhom = dto.ForWhom,
+                Problem = dto.Problem,
+                Region = dto.Region,
+                Phone = dto.Phone,
+                Comment = dto.Comment,
+                TotalPrice = totalPrice,
+                Products = productEntities
+            };
+
+            var saved = await _repo.AddPurchaseRequestEntityAsync(request);
+            if (!saved) return false;
+
+            // ✅ Telegram notification
             try
             {
                 var botToken = _config["Telegram:BotToken"];
                 var groupChatId = _config["Telegram:GroupChatId"];
                 var botClient = new TelegramBotClient(botToken);
 
-                // Get product names in selected language
-                var productDict = new Dictionary<Guid, string>();
-                foreach (var prod in dto.Products)
-                {
-                    var product = await _productService.GetByIdAsync(prod.ProductId);
-                    if (product != null)
-                    {
-                        string prodName = lang switch
-                        {
-                            "Uz" => product.Uz?.Name ?? "Noma'lum mahsulot",
-                            "Ru" => product.Ru?.Name ?? "Неведомый продукт",
-                            "En" => product.En?.Name ?? "Unknown product",
-                            _ => product.Uz?.Name ?? "Noma'lum mahsulot"
-                        };
-                        productDict[prod.ProductId] = prodName;
-                    }
-                    else
-                    {
-                        productDict[prod.ProductId] = "Noma'lum mahsulot";
-                    }
-                }
-
-                // Build Telegram message
                 string message = $"📝 Yangi so‘rov saytdan\n" +
                                  $"🧍 Ism: {dto.BuyerName}\n" +
                                  $"📞 Telefon: {dto.Phone}\n" +
@@ -100,34 +121,20 @@ namespace NutvaCms.Application.Services
                                  $"🛍️ Mahsulotlar:\n";
 
                 int index = 1;
-                decimal totalPrice = 0;
-
-                foreach (var prod in dto.Products)
+                foreach (var item in productEntities)
                 {
-                    var prodName = productDict.TryGetValue(prod.ProductId, out var name) ? name : "Noma'lum mahsulot";
-                    var product = await _productService.GetByIdAsync(prod.ProductId);
+                    var prodName = productNameMap.TryGetValue(item.ProductId, out var name) ? name : "Noma'lum mahsulot";
+                    var total = item.Quantity * item.DiscountedPrice;
 
-                    if (product != null)
-                    {
-                        var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
-                        string discountLabel = boxDiscount?.DiscountLabel ?? "0%";
+                    // Calculate % discount (if any)
+                    var basePrice = productPriceMap.TryGetValue(item.ProductId, out var originalPrice) ? originalPrice : item.DiscountedPrice;
+                    var discountPercent = basePrice > 0 ? Math.Round(100 - (item.DiscountedPrice / basePrice) * 100) : 0;
+                    string discountNote = discountPercent > 0 ? $" ({discountPercent}%)" : "";
 
-                        decimal basePrice = Math.Abs(product.Price);
-                        decimal discountedUnit = CalculateDiscountedPrice(basePrice, discountLabel);
-                        decimal itemTotal = discountedUnit * prod.Quantity;
-                        totalPrice += itemTotal;
-
-                        string discountNote = discountLabel != "0%" ? $" ({discountLabel} chegirma)" : "";
-
-                        message += $"{index++}. {prodName} — {prod.Quantity} dona — {itemTotal:N0} so'm{discountNote}\n";
-                    }
-                    else
-                    {
-                        message += $"{index++}. {prodName} — {prod.Quantity} dona — narx topilmadi\n";
-                    }
+                    message += $"{index++}. {prodName} — {item.Quantity} dona — {total:N0} so'm{discountNote}\n";
                 }
 
-                message += $"\n💰 Umumiy narx: {totalPrice:N0} so'm\n\n";
+                message += $"\n💰 Umumiy narx: {totalPrice:N0} so'm";
 
                 await botClient.SendTextMessageAsync(
                     chatId: groupChatId,
@@ -138,11 +145,12 @@ namespace NutvaCms.Application.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[Telegram Error] {ex.Message}");
-                return true; // still return true, because DB insert succeeded
+                return true;
             }
 
             return true;
         }
+
 
         public async Task<IEnumerable<PurchaseRequestDto>> GetAllPurchaseRequestsAsync()
         {
@@ -156,18 +164,18 @@ namespace NutvaCms.Application.Services
                 Region = pr.Region,
                 Phone = pr.Phone,
                 Comment = pr.Comment,
-                Products = pr.Products.Select(pp => new PurchaseProductDto
+                Products = pr.Products.Select(p => new PurchaseProductDto
                 {
-                    ProductId = pp.ProductId,
-                    Quantity = pp.Quantity
+                    ProductId = p.ProductId,
+                    Quantity = p.Quantity
                 }).ToList()
             });
         }
 
         public async Task<IEnumerable<SiteStatisticDto>> GetSiteStatisticsAsync()
         {
-            var entities = await _repo.GetSiteStatisticsAsync();
-            return entities.Select(s => new SiteStatisticDto
+            var stats = await _repo.GetSiteStatisticsAsync();
+            return stats.Select(s => new SiteStatisticDto
             {
                 Date = s.Date,
                 TotalVisits = s.TotalVisits
