@@ -167,8 +167,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nutva CMS API v1");
-        c.RoutePrefix = "swagger";
+        c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Nutva CMS API v1");
+        c.RoutePrefix = "api/swagger";
     });
 }
 
