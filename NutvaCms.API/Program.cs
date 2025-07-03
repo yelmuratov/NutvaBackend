@@ -52,6 +52,7 @@ builder.Services.AddSingleton<ITelegramBotClient>(provider =>
     return new TelegramBotClient(token);
 });
 
+
 // Repositories & Services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
@@ -158,15 +159,12 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// ✅ This is required so Swagger/Static files work behind /api reverse proxy
-app.UsePathBase("/api");
-
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Nutva CMS API v1"); // ⚠️ Notice /api prefix
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nutva CMS API v1");
         c.RoutePrefix = "swagger";
     });
 }
@@ -175,9 +173,9 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.Use(async (context, next) =>
 {
     var host = context.Request.Host.Host;
-    if (host == "demo.nutva.uz")
+    if (host == "nutvahealth.uz")
     {
-        context.Response.Redirect("https://www.demo.nutva.uz" + context.Request.Path + context.Request.QueryString);
+        context.Response.Redirect("https://www.nutvahealth.uz" + context.Request.Path + context.Request.QueryString);
         return;
     }
     await next();
@@ -186,7 +184,8 @@ app.Use(async (context, next) =>
 app.UseMiddleware<JwtBlacklistMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowAll"); // ✅ Enable CORS before auth
+
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -200,5 +199,11 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
     await DbSeeder.SeedSuperAdminAsync(db);
 }
+
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//     db.Database.Migrate();
+// }
 
 app.Run();
