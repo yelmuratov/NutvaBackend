@@ -93,7 +93,10 @@ builder.Services.AddCors(options =>
         builder
             .WithOrigins(
                 "https://nutvahealth.uz",
-                "https://www.nutvahealth.uz"
+                "https://www.nutvahealth.uz",
+                "https://demo.nutva.uz",
+                "https://www.demo.nutva.uz",
+                "http://localhost:3000"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
