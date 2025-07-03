@@ -52,8 +52,6 @@ builder.Services.AddSingleton<ITelegramBotClient>(provider =>
     return new TelegramBotClient(token);
 });
 
-
-// Repositories & Services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
@@ -164,15 +162,18 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
-    app.UseSwagger();
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+    });
+
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nutva CMS API v1");
-        c.RoutePrefix = "swagger";
+        c.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Nutva CMS API v1");
+        c.RoutePrefix = "api/swagger";
     });
 }
 
-// Custom domain redirect to HTTPS version
 app.Use(async (context, next) =>
 {
     var host = context.Request.Host.Host;
@@ -187,7 +188,7 @@ app.Use(async (context, next) =>
 app.UseMiddleware<JwtBlacklistMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
-app.UseCors("AllowAll"); // ✅ Enable CORS before auth
+app.UseCors("AllowAll");
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
@@ -196,17 +197,11 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-    await DbSeeder.SeedSuperAdminAsync(db);
-}
-
 // using (var scope = app.Services.CreateScope())
 // {
 //     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 //     db.Database.Migrate();
+//     await DbSeeder.SeedSuperAdminAsync(db);
 // }
 
 app.Run();
