@@ -18,17 +18,29 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Run health check on server
+      - name: Check if backend is healthy
+        id: health
         run: |
-          ssh -o StrictHostKeyChecking=no ntva@demo.nutva.uz "
-            curl -f http://localhost:5000/swagger/index.html || exit 1
-          "
+          ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz "
+            curl -f http://localhost:5000/swagger/index.html
+          " || echo "unhealthy=true" >> $GITHUB_OUTPUT
 
-      - name: Deploy via SSH
+      - name: dotnet build test
+        id: buildcheck
         run: |
-          ssh -o StrictHostKeyChecking=no ntva@demo.nutva.uz "
-            cd ~/NutvaBackend &&
-            git pull origin main &&
-            docker compose down &&
+          cd NutvaBackend
+          dotnet restore
+          dotnet build --configuration Release
+          echo "build_ok=true" >> $GITHUB_OUTPUT
+
+      - name: Deploy only if unhealthy and build is successful
+        if: steps.health.outputs.unhealthy == 'true' && steps.buildcheck.outputs.build_ok == 'true'
+        run: |
+          echo "Backend is unhealthy and build passed. Deploying..."
+          ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz << 'EOF'
+            set -e
+            cd ~/NutvaBackend
+            git pull origin main
+            docker compose down
             docker compose up --build -d
-          "
+          EOF
