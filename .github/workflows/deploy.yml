@@ -18,6 +18,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
+      - name: Install .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
       - name: Check if backend is healthy
         id: health
         run: |
@@ -34,6 +39,7 @@ jobs:
       - name: dotnet build test
         id: buildcheck
         run: |
+          cd NutvaBackend
           dotnet restore
           dotnet build --configuration Release
           echo "build_ok=true" >> "$GITHUB_OUTPUT"
@@ -49,3 +55,4 @@ jobs:
             docker compose down
             docker compose up --build -d
           EOF
+      
