@@ -21,9 +21,15 @@ jobs:
       - name: Check if backend is healthy
         id: health
         run: |
+          set +e
           ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz "
             curl -f http://localhost:5000/swagger/index.html
-          " || echo "unhealthy=true" >> $GITHUB_OUTPUT
+          "
+          if [ $? -ne 0 ]; then
+            echo "unhealthy=true" >> $GITHUB_OUTPUT
+          else
+            echo "unhealthy=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: dotnet build test
         id: buildcheck
