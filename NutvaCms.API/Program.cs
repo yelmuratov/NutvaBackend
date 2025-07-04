@@ -86,8 +86,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 
-
-dajdnaksdnkansdknaksdna // Error for Ci/CD pipeline to detect this file// github commit: CI/CD pipeline test
 // CORS (important for SignalR)
 builder.Services.AddCors(options =>
 {
@@ -129,7 +127,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Nutva CMS API",
+        Title = "Nutva CMS API/ TEST FOR CI/CD",
         Version = "v1",
         Description = "CMS for managing blogs, products, banners with JWT authentication"
     });
