@@ -23,6 +23,22 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: dotnet build test
+        id: buildcheck
+        run: |
+          dotnet restore NutvaCms.sln
+          dotnet build NutvaCms.sln --configuration Release
+          echo "build_ok=true" >> "$GITHUB_OUTPUT"
+
+      - name: Pull latest code on server
+        run: |
+          ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz << 'EOF'
+            set -e
+            cd ~/NutvaBackend
+            git reset --hard HEAD
+            git pull origin main
+          EOF
+
       - name: Check if backend is healthy
         id: health
         run: |
@@ -36,21 +52,13 @@ jobs:
             echo "unhealthy=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: dotnet build test
-        id: buildcheck
-        run: |
-          dotnet restore NutvaCms.sln
-          dotnet build NutvaCms.sln --configuration Release
-          echo "build_ok=true" >> "$GITHUB_OUTPUT"
-
-      - name: Deploy only if unhealthy and build is successful
+      - name: Rebuild and restart backend if unhealthy
         if: steps.health.outputs.unhealthy == 'true' && steps.buildcheck.outputs.build_ok == 'true'
         run: |
-          echo "Backend is unhealthy and build passed. Deploying..."
+          echo "Backend is unhealthy. Rebuilding Docker containers..."
           ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz << 'EOF'
             set -e
             cd ~/NutvaBackend
-            git pull origin main
             docker compose down
             docker compose build --no-cache
             docker compose up -d
