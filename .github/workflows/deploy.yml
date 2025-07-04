@@ -39,9 +39,8 @@ jobs:
       - name: dotnet build test
         id: buildcheck
         run: |
-          cd NutvaBackend
-          dotnet restore
-          dotnet build --configuration Release
+          dotnet restore NutvaCms.sln
+          dotnet build NutvaCms.sln --configuration Release
           echo "build_ok=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy only if unhealthy and build is successful
@@ -55,4 +54,3 @@ jobs:
             docker compose down
             docker compose up --build -d
           EOF
-      
