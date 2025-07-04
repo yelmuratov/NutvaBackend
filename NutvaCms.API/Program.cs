@@ -85,6 +85,9 @@ builder.Services.AddScoped<IProductBoxPriceService, ProductBoxPriceService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+
+
+dajdnaksdnkansdknaksdna // Error for Ci/CD pipeline to detect this file// github commit: CI/CD pipeline test
 // CORS (important for SignalR)
 builder.Services.AddCors(options =>
 {
