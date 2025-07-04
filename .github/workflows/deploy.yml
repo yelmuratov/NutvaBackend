@@ -30,35 +30,34 @@ jobs:
           dotnet build NutvaCms.sln --configuration Release
           echo "build_ok=true" >> "$GITHUB_OUTPUT"
 
-      - name: Pull latest code on server
+      - name: Pull and compare latest commit hash
+        id: commitcheck
         run: |
+          LATEST_COMMIT=$(git rev-parse HEAD)
+          echo "local_commit=$LATEST_COMMIT" >> $GITHUB_OUTPUT
+
+          ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz << EOF > server_commit.txt
+            cd ~/NutvaBackend && git rev-parse HEAD
+          EOF
+
+          SERVER_COMMIT=$(cat server_commit.txt | tail -n 1)
+          echo "remote_commit=$SERVER_COMMIT" >> $GITHUB_OUTPUT
+
+          if [ "$LATEST_COMMIT" != "$SERVER_COMMIT" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Rebuild and restart backend if code changed and build passed
+        if: steps.commitcheck.outputs.changed == 'true' && steps.buildcheck.outputs.build_ok == 'true'
+        run: |
+          echo "Code changed. Rebuilding Docker containers..."
           ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz << 'EOF'
             set -e
             cd ~/NutvaBackend
             git reset --hard HEAD
             git pull origin main
-          EOF
-
-      - name: Check if backend is healthy
-        id: health
-        run: |
-          set +e
-          ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz "
-            curl -f http://localhost:5000/swagger/index.html
-          "
-          if [ $? -ne 0 ]; then
-            echo "unhealthy=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "unhealthy=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Rebuild and restart backend if unhealthy
-        if: steps.health.outputs.unhealthy == 'true' && steps.buildcheck.outputs.build_ok == 'true'
-        run: |
-          echo "Backend is unhealthy. Rebuilding Docker containers..."
-          ssh -o StrictHostKeyChecking=no -p 2245 ntva@demo.nutva.uz << 'EOF'
-            set -e
-            cd ~/NutvaBackend
             docker compose down
             docker compose build --no-cache
             docker compose up -d
