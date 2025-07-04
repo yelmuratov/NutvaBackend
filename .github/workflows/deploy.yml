@@ -26,18 +26,17 @@ jobs:
             curl -f http://localhost:5000/swagger/index.html
           "
           if [ $? -ne 0 ]; then
-            echo "unhealthy=true" >> $GITHUB_OUTPUT
+            echo "unhealthy=true" >> "$GITHUB_OUTPUT"
           else
-            echo "unhealthy=false" >> $GITHUB_OUTPUT
+            echo "unhealthy=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: dotnet build test
         id: buildcheck
         run: |
-          cd NutvaBackend
           dotnet restore
           dotnet build --configuration Release
-          echo "build_ok=true" >> $GITHUB_OUTPUT
+          echo "build_ok=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy only if unhealthy and build is successful
         if: steps.health.outputs.unhealthy == 'true' && steps.buildcheck.outputs.build_ok == 'true'
