@@ -7,7 +7,7 @@ public interface IProductService
 {
     Task<IEnumerable<ProductSummaryDto>> GetAllAsync(string lang);
 
-    Task<Product?> GetByIdAsync(Guid id);
+    Task<ProductSummaryDto?> GetByIdAsync(Guid id, string lang);
 
     Task<Product> CreateAsync(CreateProductDto dto);
     Task<Product?> UpdateAsync(Guid id, UpdateProductDto dto);

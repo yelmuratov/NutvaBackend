@@ -56,13 +56,15 @@ namespace NutvaCms.Application.Services
 
             foreach (var prod in dto.Products)
             {
-                var product = await _productService.GetByIdAsync(prod.ProductId);
+                // Fetch product DTO in requested language
+                var product = await _productService.GetByIdAsync(prod.ProductId, lang); // <-- changed
                 if (product == null) continue;
 
+                // Get box discount as before
                 var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
                 string discountLabel = boxDiscount?.DiscountLabel ?? "0%";
 
-                decimal basePrice = Math.Abs(product.Price);
+                decimal basePrice = Math.Abs(product.Price); // product.Price is already from DTO
                 decimal discountedUnitPrice = CalculateDiscountedPrice(basePrice, discountLabel);
                 decimal itemTotal = discountedUnitPrice * prod.Quantity;
 
@@ -77,13 +79,8 @@ namespace NutvaCms.Application.Services
 
                 productPriceMap[prod.ProductId] = basePrice;
 
-                string prodName = lang switch
-                {
-                    "Uz" => product.Uz?.Name ?? "Noma'lum mahsulot",
-                    "Ru" => product.Ru?.Name ?? "Неизвестный продукт",
-                    "En" => product.En?.Name ?? "Unknown product",
-                    _ => product.Uz?.Name ?? "Noma'lum mahsulot"
-                };
+                // Use DTO property directly
+                string prodName = product.Name ?? "Noma'lum mahsulot";
                 productNameMap[prod.ProductId] = prodName;
             }
 
@@ -145,11 +142,12 @@ namespace NutvaCms.Application.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"[Telegram Error] {ex.Message}");
-                return true;
+                return true; // Ignore telegram errors for user flow
             }
 
             return true;
         }
+
 
 
         public async Task<IEnumerable<PurchaseRequestDto>> GetAllPurchaseRequestsAsync()
@@ -171,7 +169,6 @@ namespace NutvaCms.Application.Services
                 }).ToList()
             });
         }
-
         public async Task<IEnumerable<SiteStatisticDto>> GetSiteStatisticsAsync()
         {
             var stats = await _repo.GetSiteStatisticsAsync();

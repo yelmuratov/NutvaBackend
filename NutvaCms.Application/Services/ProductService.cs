@@ -27,7 +27,14 @@ public class ProductService : IProductService
     }
 
     // ✅ GET BY ID full product
-    public Task<Product?> GetByIdAsync(Guid id) => _repo.GetByIdAsync(id);
+    public async Task<ProductSummaryDto?> GetByIdAsync(Guid id, string lang)
+    {
+        var product = await _repo.GetByIdAsync(id);
+        if (product is null) return null;
+
+        var langEnum = Enum.TryParse<LanguageCode>(lang, true, out var parsedLang) ? parsedLang : LanguageCode.En;
+        return ProductMapper.ToSummaryDto(product, langEnum); // Or ToDetailDto if exists
+    }
 
     // ✅ CREATE PRODUCT
     public async Task<Product> CreateAsync(CreateProductDto dto)

@@ -24,16 +24,16 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetAll([FromQuery] string lang = "en")
     {
         var products = await _productService.GetAllAsync(lang);
-        return Ok(products); 
+        return Ok(products);
     }
 
     // ✅ Public access - fetch full product entity by id
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "en")
     {
-        var product = await _productService.GetByIdAsync(id);
-        return product is null ? NotFound() : Ok(product);
+        var productDto = await _productService.GetByIdAsync(id, lang);
+        return productDto is null ? NotFound() : Ok(productDto);
     }
 
     // ✅ Authenticated admins only - create product
