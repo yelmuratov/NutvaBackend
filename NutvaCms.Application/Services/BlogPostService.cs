@@ -142,6 +142,12 @@ public class BlogPostService : IBlogPostService
         }
     }
 
+    public async Task IncrementViewCountAsync(Guid id)
+    {
+        await _repository.IncrementViewCountAsync(id);
+    }
+
+
     // VALIDATIONS (Hardened & Exception Safe)
 
     private void ValidateImageFile(IFormFile file)

@@ -13,6 +13,7 @@ public class BlogPostSummaryDto
     public string MetaTitle { get; set; } = null!;
     public string MetaDescription { get; set; } = null!;
     public string MetaKeywords { get; set; } = null!;
+    public int ViewCount { get; set; }
 
     public List<MediaInputDto> Media { get; set; } = new();
 }

@@ -44,4 +44,14 @@ public class BlogPostRepository : IBlogPostRepository
         _context.BlogPosts.Remove(blogPost);
         await _context.SaveChangesAsync();
     }
+
+    public async Task IncrementViewCountAsync(Guid id)
+    {
+        var blog = await _context.BlogPosts.FindAsync(id);
+        if (blog != null)
+        {
+            blog.ViewCount++;
+            await _context.SaveChangesAsync();
+        }
+    }
 }

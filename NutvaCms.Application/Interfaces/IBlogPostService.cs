@@ -9,4 +9,5 @@ public interface IBlogPostService
     Task<BlogPostDto> CreateAsync(CreateBlogPostDto dto);
     Task UpdateAsync(Guid id, UpdateBlogPostDto dto);
     Task DeleteAsync(Guid id);
+    Task IncrementViewCountAsync(Guid id);
 }

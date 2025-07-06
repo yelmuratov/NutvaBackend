@@ -6,7 +6,7 @@ public class BlogPost
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool Published { get; set; }
-
+    public int ViewCount { get; set; } = 0;
     // 3 Language Translations:
     public BlogPostTranslation En { get; set; } = new BlogPostTranslation();
     public BlogPostTranslation Uz { get; set; } = new BlogPostTranslation();

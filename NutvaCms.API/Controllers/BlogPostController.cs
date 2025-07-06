@@ -72,4 +72,13 @@ public class BlogPostController : ControllerBase
         await _blogPostService.DeleteAsync(id);
         return NoContent();
     }
+
+    [HttpPost("view/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> TrackView(Guid id)
+    {
+        await _blogPostService.IncrementViewCountAsync(id);
+        return Ok(new { message = "Blog post view tracked." });
+    }
+
 }

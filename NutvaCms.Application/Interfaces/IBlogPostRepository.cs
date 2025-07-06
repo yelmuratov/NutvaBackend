@@ -9,4 +9,5 @@ public interface IBlogPostRepository
     Task AddAsync(BlogPost blogPost);
     Task UpdateAsync(BlogPost blogPost);
     Task DeleteAsync(BlogPost blogPost);
+    Task IncrementViewCountAsync(Guid id);
 }

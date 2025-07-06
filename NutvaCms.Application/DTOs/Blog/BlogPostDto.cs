@@ -6,6 +6,7 @@ public class BlogPostDto
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public bool Published { get; set; }
+    public int ViewCount { get; set; }
     public TranslationInputDto En { get; set; } = null!;
     public TranslationInputDto Uz { get; set; } = null!;
     public TranslationInputDto Ru { get; set; } = null!;
