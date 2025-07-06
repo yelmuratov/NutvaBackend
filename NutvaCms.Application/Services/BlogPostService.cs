@@ -29,13 +29,14 @@ public class BlogPostService : IBlogPostService
         return blogs.Select(blog => BlogPostMapper.ToSummaryDto(blog, langEnum)).ToList();
     }
 
-    public async Task<BlogPostDto?> GetByIdAsync(Guid id)
+    public async Task<BlogPostSummaryDto?> GetByIdAsync(Guid id, string lang)
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             return null;
 
-        return BlogPostMapper.ToDto(entity);
+        var langEnum = Enum.TryParse<LanguageCode>(lang, true, out var parsedLang) ? parsedLang : LanguageCode.En;
+        return BlogPostMapper.ToSummaryDto(entity, langEnum);
     }
 
     public async Task<BlogPostDto> CreateAsync(CreateBlogPostDto dto)
@@ -176,7 +177,6 @@ public class BlogPostService : IBlogPostService
         if (!Uri.TryCreate(url, UriKind.Absolute, out _))
             throw new Exception("Invalid Video URL format.");
     }
-
     private bool IsYoutubeUrl(string url)
     {
         if (string.IsNullOrWhiteSpace(url))

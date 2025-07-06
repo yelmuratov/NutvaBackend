@@ -28,14 +28,15 @@ public class BlogPostController : ControllerBase
     /// Get blog post by Id
     /// </summary>
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "en")
     {
-        var blog = await _blogPostService.GetByIdAsync(id);
+        var blog = await _blogPostService.GetByIdAsync(id, lang);
         if (blog == null)
             return NotFound();
 
         return Ok(blog);
     }
+
 
     /// <summary>
     /// Create new blog post (multipart/form-data for file uploads)
