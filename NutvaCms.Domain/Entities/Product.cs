@@ -9,7 +9,6 @@ public class Product
     public ProductTranslation Uz { get; set; } = new();
     public ProductTranslation Ru { get; set; } = new();
     public decimal Price { get; set; }
-    public string Slug { get; set; } = null!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public int ViewCount { get; set; } = 0;
     public int BuyClickCount { get; set; } = 0;

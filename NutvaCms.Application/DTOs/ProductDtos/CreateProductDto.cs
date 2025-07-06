@@ -9,7 +9,5 @@ public class CreateProductDto
     public ProductTranslationInputDto Ru { get; set; } = null!;
 
     public decimal Price { get; set; }
-    public string Slug { get; set; } = null!;
-
     public List<IFormFile>? Images { get; set; } = new();
 }

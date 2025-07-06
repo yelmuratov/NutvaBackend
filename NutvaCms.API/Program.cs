@@ -61,8 +61,6 @@ builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddScoped<ITrackingPixelRepository, TrackingPixelRepository>();
 builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 builder.Services.AddScoped<IChatAdminRepository, ChatAdminRepository>();
-builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
-builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 builder.Services.AddScoped<IProductBoxPriceRepository, ProductBoxPriceRepository>();
 builder.Services.AddScoped<IContactFormRepository, ContactFormRepository>();
 
@@ -76,9 +74,6 @@ builder.Services.AddScoped<ITrackingPixelService, TrackingPixelService>();
 builder.Services.AddSingleton<ITokenBlacklistService, InMemoryTokenBlacklistService>();
 builder.Services.AddScoped<IBlogPostService, BlogPostService>();
 builder.Services.AddScoped<IChatAdminService, ChatAdminService>();
-builder.Services.AddScoped<IChatMapper, ChatMapper>();
-builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddSingleton<TelegramService>();
 builder.Services.AddSingleton<DocxReaderService>();
 builder.Services.AddScoped<IContactFormService, ContactFormService>();
 builder.Services.AddScoped<IProductBoxPriceService, ProductBoxPriceService>();

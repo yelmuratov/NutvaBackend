@@ -12,7 +12,6 @@ namespace NutvaCms.Application.Mappers
             {
                 Id = Guid.NewGuid(),
                 Price = dto.Price,
-                Slug = dto.Slug,
                 ImageUrls = imageUrls,
 
                 En = MapTranslation(dto.En),
@@ -29,9 +28,6 @@ namespace NutvaCms.Application.Mappers
         {
             if (dto.Price.HasValue)
                 product.Price = dto.Price.Value;
-
-            if (dto.Slug != null)
-                product.Slug = dto.Slug;
 
             if (dto.Images != null && dto.Images.Any())
                 product.ImageUrls = imageUrls;
@@ -64,6 +60,9 @@ namespace NutvaCms.Application.Mappers
 
             if (incoming.MetaKeywords != null)
                 existing.MetaKeywords = incoming.MetaKeywords;
+
+            if (incoming.Slug != null)
+                existing.Slug = incoming.Slug; // <-- Now supports per-language slug
         }
 
         public static ProductSummaryDto ToSummaryDto(Product product, LanguageCode lang)
@@ -85,7 +84,7 @@ namespace NutvaCms.Application.Mappers
                 MetaDescription = translation.MetaDescription,
                 MetaKeywords = translation.MetaKeywords,
                 Price = product.Price,
-                Slug = product.Slug,
+                Slug = translation.Slug, // <-- Localized slug!
                 ViewCount = product.ViewCount,
                 BuyClickCount = product.BuyClickCount,
                 ImageUrls = product.ImageUrls
@@ -100,7 +99,8 @@ namespace NutvaCms.Application.Mappers
                 Description = dto.Description,
                 MetaTitle = dto.MetaTitle,
                 MetaDescription = dto.MetaDescription,
-                MetaKeywords = dto.MetaKeywords
+                MetaKeywords = dto.MetaKeywords,
+                Slug = dto.Slug // <-- Localized slug on creation
             };
         }
     }

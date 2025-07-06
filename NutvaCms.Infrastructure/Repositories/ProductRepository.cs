@@ -32,14 +32,13 @@ public class ProductRepository : IProductRepository
         if (existing is null)
             throw new InvalidOperationException($"Product with ID {product.Id} not found");
 
-        // Update translations
+        // Update translations (including localized slug)
         existing.En = product.En;
         existing.Uz = product.Uz;
         existing.Ru = product.Ru;
 
         // Update other fields
         existing.Price = product.Price;
-        existing.Slug = product.Slug;
         existing.ImageUrls = product.ImageUrls;
 
         await _db.SaveChangesAsync();

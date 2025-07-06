@@ -8,7 +8,6 @@ namespace NutvaCms.Application.DTOs.ProductDtos
         public ProductTranslationInputDto? Uz { get; set; }
         public ProductTranslationInputDto? Ru { get; set; }
 
-        public string? Slug { get; set; }
         public decimal? Price { get; set; }
 
         public List<IFormFile>? Images { get; set; } = new();
