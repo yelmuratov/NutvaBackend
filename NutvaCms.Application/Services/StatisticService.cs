@@ -54,17 +54,31 @@ namespace NutvaCms.Application.Services
             var productNameMap = new Dictionary<Guid, string>();
             var productPriceMap = new Dictionary<Guid, decimal>();
 
+            // ✅ Step 1: Check if total quantity is 3 or more
+            int totalBoxCount = dto.Products.Sum(p => p.Quantity);
+            bool applyBulkDiscount = totalBoxCount >= 3;
+
             foreach (var prod in dto.Products)
             {
                 // Fetch product DTO in requested language
-                var product = await _productService.GetByIdAsync(prod.ProductId, lang); // <-- changed
+                var product = await _productService.GetByIdAsync(prod.ProductId, lang);
                 if (product == null) continue;
 
-                // Get box discount as before
-                var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
-                string discountLabel = boxDiscount?.DiscountLabel ?? "0%";
+                string discountLabel;
 
-                decimal basePrice = Math.Abs(product.Price); // product.Price is already from DTO
+                if (applyBulkDiscount)
+                {
+                    // ✅ Apply 50% discount to all products regardless of quantity
+                    discountLabel = "50%";
+                }
+                else
+                {
+                    // Use product's actual discount based on quantity
+                    var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
+                    discountLabel = boxDiscount?.DiscountLabel ?? "0%";
+                }
+
+                decimal basePrice = Math.Abs(product.Price);
                 decimal discountedUnitPrice = CalculateDiscountedPrice(basePrice, discountLabel);
                 decimal itemTotal = discountedUnitPrice * prod.Quantity;
 
@@ -78,10 +92,7 @@ namespace NutvaCms.Application.Services
                 });
 
                 productPriceMap[prod.ProductId] = basePrice;
-
-                // Use DTO property directly
-                string prodName = product.Name ?? "Noma'lum mahsulot";
-                productNameMap[prod.ProductId] = prodName;
+                productNameMap[prod.ProductId] = product.Name ?? "Noma'lum mahsulot";
             }
 
             var request = new PurchaseRequest
