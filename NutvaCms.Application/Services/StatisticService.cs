@@ -54,9 +54,16 @@ namespace NutvaCms.Application.Services
             var productNameMap = new Dictionary<Guid, string>();
             var productPriceMap = new Dictionary<Guid, decimal>();
 
-            // ✅ Step 1: Check if total quantity is 3 or more
+            // ✅ Step 1: Determine total quantity and apply global discount rate
             int totalBoxCount = dto.Products.Sum(p => p.Quantity);
-            bool applyBulkDiscount = totalBoxCount >= 3;
+            int discountPercent = totalBoxCount switch
+            {
+                1 => 0,
+                2 => 15,
+                3 or 4 => 45,
+                >= 5 => 52,
+                _ => 0
+            };
 
             foreach (var prod in dto.Products)
             {
@@ -64,24 +71,11 @@ namespace NutvaCms.Application.Services
                 var product = await _productService.GetByIdAsync(prod.ProductId, lang);
                 if (product == null) continue;
 
-                string discountLabel;
-
-                if (applyBulkDiscount)
-                {
-                    // ✅ Apply 50% discount to all products regardless of quantity
-                    discountLabel = "50%";
-                }
-                else
-                {
-                    // Use product's actual discount based on quantity
-                    var boxDiscount = await _boxPriceService.GetByProductAndBoxCountAsync(prod.ProductId, prod.Quantity);
-                    discountLabel = boxDiscount?.DiscountLabel ?? "0%";
-                }
-
                 decimal basePrice = Math.Abs(product.Price);
-                decimal discountedUnitPrice = CalculateDiscountedPrice(basePrice, discountLabel);
-                decimal itemTotal = discountedUnitPrice * prod.Quantity;
+                decimal discountedUnitPrice = basePrice * (1 - discountPercent / 100m);
+                discountedUnitPrice = Math.Round(discountedUnitPrice, 0);
 
+                decimal itemTotal = discountedUnitPrice * prod.Quantity;
                 totalPrice += itemTotal;
 
                 productEntities.Add(new PurchaseRequestProduct
@@ -126,20 +120,14 @@ namespace NutvaCms.Application.Services
                                  $"👥 Kim uchun: {dto.ForWhom}\n" +
                                  $"🧠 Muammo: {dto.Problem}\n" +
                                  $"💬 Izoh: {(string.IsNullOrWhiteSpace(dto.Comment) ? "Yo‘q" : dto.Comment)}\n\n" +
-                                 $"🛍️ Mahsulotlar:\n";
+                                 $"🛍️ Mahsulotlar (Umumiy chegirma: {discountPercent}%):\n";
 
                 int index = 1;
                 foreach (var item in productEntities)
                 {
                     var prodName = productNameMap.TryGetValue(item.ProductId, out var name) ? name : "Noma'lum mahsulot";
                     var total = item.Quantity * item.DiscountedPrice;
-
-                    // Calculate % discount (if any)
-                    var basePrice = productPriceMap.TryGetValue(item.ProductId, out var originalPrice) ? originalPrice : item.DiscountedPrice;
-                    var discountPercent = basePrice > 0 ? Math.Round(100 - (item.DiscountedPrice / basePrice) * 100) : 0;
-                    string discountNote = discountPercent > 0 ? $" ({discountPercent}%)" : "";
-
-                    message += $"{index++}. {prodName} — {item.Quantity} dona — {total:N0} so'm{discountNote}\n";
+                    message += $"{index++}. {prodName} — {item.Quantity} dona — {total:N0} so'm\n";
                 }
 
                 message += $"\n💰 Umumiy narx: {totalPrice:N0} so'm";
@@ -158,6 +146,7 @@ namespace NutvaCms.Application.Services
 
             return true;
         }
+
 
 
 
