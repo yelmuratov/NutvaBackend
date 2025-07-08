@@ -92,7 +92,8 @@ builder.Services.AddCors(options =>
                 "https://www.nutvahealth.uz",
                 "https://demo.nutva.uz",
                 "https://www.demo.nutva.uz",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "https://nutva-frontend.vercel.app"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
