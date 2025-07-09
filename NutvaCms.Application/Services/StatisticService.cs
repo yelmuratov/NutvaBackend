@@ -52,17 +52,33 @@ namespace NutvaCms.Application.Services
             decimal totalPrice = 0;
             var productEntities = new List<PurchaseRequestProduct>();
             var productNameMap = new Dictionary<Guid, string>();
+            var productDiscounts = new Dictionary<string, decimal[]>()
+    {
+        // ProductName or type : discounts for [1,2,3-4,>=5]
+        { "Virus",    new decimal[] { 0m, 19.77m, 43.02m, 54.65m } },
+        { "Fertilia", new decimal[] { 0m, 19.77m, 43.02m, 54.65m } },
+        { "Gelmin",   new decimal[] { 0m, 20.41m, 40.82m, 55.10m } },
+        { "Complex",  new decimal[] { 0m, 15.38m, 45.30m, 52.14m } },
+        { "Extra",    new decimal[] { 0m, 15.38m, 45.30m, 52.14m } },
+        // Add aliases if your names are not exact
+        { "Complex Extra", new decimal[] { 0m, 15.38m, 45.30m, 52.14m } },
+    };
 
-            // Step 1: Determine total quantity and apply global discount rate
-            int totalBoxCount = dto.Products.Sum(p => p.Quantity);
-            int discountPercent = totalBoxCount switch
+            // Helper to get discount percent for product
+            decimal GetDiscount(string name, int quantity)
             {
-                1 => 0,
-                2 => 15,
-                3 or 4 => 45,
-                >= 5 => 52,
-                _ => 0
-            };
+                // Normalize name
+                name = name?.ToLowerInvariant() ?? "";
+                string key = productDiscounts.Keys.FirstOrDefault(k => name.Contains(k.ToLowerInvariant()));
+                if (string.IsNullOrEmpty(key)) return 0m;
+
+                var discounts = productDiscounts[key];
+                if (quantity == 1) return discounts[0];
+                if (quantity == 2) return discounts[1];
+                if (quantity == 3 || quantity == 4) return discounts[2];
+                if (quantity >= 5) return discounts[3];
+                return 0m;
+            }
 
             foreach (var prod in dto.Products)
             {
@@ -71,7 +87,11 @@ namespace NutvaCms.Application.Services
                 if (product == null) continue;
 
                 decimal basePrice = Math.Abs(product.Price);
-                decimal discountedUnitPrice = Math.Round(basePrice * (1 - discountPercent / 100m), 0);
+                string productName = product.Name ?? "Noma'lum mahsulot";
+                decimal discountPercent = GetDiscount(productName, prod.Quantity);
+
+                // Calculate discounted price (round as needed for your use-case)
+                decimal discountedUnitPrice = Math.Round(basePrice * (1 - discountPercent / 100m), 0); // or remove Math.Round if you want decimals
 
                 decimal itemTotal = discountedUnitPrice * prod.Quantity;
                 totalPrice += itemTotal;
@@ -83,7 +103,7 @@ namespace NutvaCms.Application.Services
                     DiscountedPrice = discountedUnitPrice
                 });
 
-                productNameMap[prod.ProductId] = product.Name ?? "Noma'lum mahsulot";
+                productNameMap[prod.ProductId] = productName;
             }
 
             var request = new PurchaseRequest
@@ -111,7 +131,7 @@ namespace NutvaCms.Application.Services
                                  $"📞 Telefon: {dto.Phone}\n" +
                                  $"🌍 Hudud: {dto.Region}\n" +
                                  $"💬 Izoh: {(string.IsNullOrWhiteSpace(dto.Comment) ? "Yo‘q" : dto.Comment)}\n\n" +
-                                 $"🛍️ Mahsulotlar (Umumiy chegirma: {discountPercent}%):\n";
+                                 $"🛍️ Mahsulotlar:\n";
 
                 int index = 1;
                 foreach (var item in productEntities)

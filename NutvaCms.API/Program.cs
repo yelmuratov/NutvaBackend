@@ -123,7 +123,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Nutva CMS API/ TEST FOR CI/CD",
+        Title = "Nutva CMS API",
         Version = "v1",
         Description = "CMS for managing blogs, products, banners with JWT authentication"
     });
@@ -164,7 +164,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nutva CMS API v1 test for CI/CD");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nutva CMS API");
         c.RoutePrefix = "swagger";
     });
 }
