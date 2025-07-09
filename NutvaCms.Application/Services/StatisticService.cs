@@ -52,9 +52,8 @@ namespace NutvaCms.Application.Services
             decimal totalPrice = 0;
             var productEntities = new List<PurchaseRequestProduct>();
             var productNameMap = new Dictionary<Guid, string>();
-            var productPriceMap = new Dictionary<Guid, decimal>();
 
-            // ✅ Step 1: Determine total quantity and apply global discount rate
+            // Step 1: Determine total quantity and apply global discount rate
             int totalBoxCount = dto.Products.Sum(p => p.Quantity);
             int discountPercent = totalBoxCount switch
             {
@@ -72,8 +71,7 @@ namespace NutvaCms.Application.Services
                 if (product == null) continue;
 
                 decimal basePrice = Math.Abs(product.Price);
-                decimal discountedUnitPrice = basePrice * (1 - discountPercent / 100m);
-                discountedUnitPrice = Math.Round(discountedUnitPrice, 0);
+                decimal discountedUnitPrice = Math.Round(basePrice * (1 - discountPercent / 100m), 0);
 
                 decimal itemTotal = discountedUnitPrice * prod.Quantity;
                 totalPrice += itemTotal;
@@ -85,16 +83,12 @@ namespace NutvaCms.Application.Services
                     DiscountedPrice = discountedUnitPrice
                 });
 
-                productPriceMap[prod.ProductId] = basePrice;
                 productNameMap[prod.ProductId] = product.Name ?? "Noma'lum mahsulot";
             }
 
             var request = new PurchaseRequest
             {
                 BuyerName = dto.BuyerName,
-                Age = dto.Age,
-                ForWhom = dto.ForWhom,
-                Problem = dto.Problem,
                 Region = dto.Region,
                 Phone = dto.Phone,
                 Comment = dto.Comment,
@@ -105,7 +99,7 @@ namespace NutvaCms.Application.Services
             var saved = await _repo.AddPurchaseRequestEntityAsync(request);
             if (!saved) return false;
 
-            // ✅ Telegram notification
+            // Telegram notification
             try
             {
                 var botToken = _config["Telegram:BotToken"];
@@ -115,10 +109,7 @@ namespace NutvaCms.Application.Services
                 string message = $"📝 Yangi so‘rov saytdan\n" +
                                  $"🧍 Ism: {dto.BuyerName}\n" +
                                  $"📞 Telefon: {dto.Phone}\n" +
-                                 $"🎂 Yosh: {dto.Age}\n" +
                                  $"🌍 Hudud: {dto.Region}\n" +
-                                 $"👥 Kim uchun: {dto.ForWhom}\n" +
-                                 $"🧠 Muammo: {dto.Problem}\n" +
                                  $"💬 Izoh: {(string.IsNullOrWhiteSpace(dto.Comment) ? "Yo‘q" : dto.Comment)}\n\n" +
                                  $"🛍️ Mahsulotlar (Umumiy chegirma: {discountPercent}%):\n";
 
@@ -147,18 +138,12 @@ namespace NutvaCms.Application.Services
             return true;
         }
 
-
-
-
         public async Task<IEnumerable<PurchaseRequestDto>> GetAllPurchaseRequestsAsync()
         {
             var entities = await _repo.GetAllPurchaseRequestsAsync();
             return entities.Select(pr => new PurchaseRequestDto
             {
                 BuyerName = pr.BuyerName,
-                Age = pr.Age,
-                ForWhom = pr.ForWhom,
-                Problem = pr.Problem,
                 Region = pr.Region,
                 Phone = pr.Phone,
                 Comment = pr.Comment,
@@ -169,6 +154,7 @@ namespace NutvaCms.Application.Services
                 }).ToList()
             });
         }
+
         public async Task<IEnumerable<SiteStatisticDto>> GetSiteStatisticsAsync()
         {
             var stats = await _repo.GetSiteStatisticsAsync();

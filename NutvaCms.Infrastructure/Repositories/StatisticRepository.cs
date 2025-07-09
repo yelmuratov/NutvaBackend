@@ -51,9 +51,6 @@ public class StatisticRepository : IStatisticRepository
         var request = new PurchaseRequest
         {
             BuyerName = dto.BuyerName,
-            Age = dto.Age,
-            ForWhom = dto.ForWhom,
-            Problem = dto.Problem,
             Region = dto.Region,
             Phone = dto.Phone,
             Comment = dto.Comment ?? string.Empty,

@@ -1,15 +1,12 @@
-namespace NutvaCms.Application.DTOs;
-
-public class PurchaseRequestDto
+namespace NutvaCms.Application.DTOs
 {
-    public string BuyerName { get; set; }
-    public int Age { get; set; }
-    public string ForWhom { get; set; }
-    public string Problem { get; set; }
-    public string Region { get; set; }
-    public string Phone { get; set; }
-    public string Comment { get; set; }
-    public List<PurchaseProductDto> Products { get; set; }
+    public class PurchaseRequestDto
+    {
+        public string BuyerName { get; set; }           // Name
+        public string Phone { get; set; }               // Phone number
+        public string Region { get; set; }              // Region
+        public string Comment { get; set; }             // Additional information
+
+        public List<PurchaseProductDto> Products { get; set; } = new(); // Order items (kept)
+    }
 }
-
-
