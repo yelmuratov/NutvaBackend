@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using NutvaCms.Application.DTOs;
 using NutvaCms.Application.Interfaces;
@@ -18,6 +17,16 @@ namespace NutvaCms.Application.Services
         private readonly IProductService _productService;
         private readonly IProductBoxPriceService _boxPriceService;
 
+        // Discount table matches frontend
+        private readonly Dictionary<string, Dictionary<int, decimal>> DiscountTable = new()
+        {
+            ["VIRIS"]     = new() { { 1, 860_000 }, { 2, 690_000 }, { 3, 490_000 }, { 5, 390_000 } },
+            ["FERTILIA"]  = new() { { 1, 860_000 }, { 2, 690_000 }, { 3, 490_000 }, { 5, 390_000 } },
+            ["GELMIN"]    = new() { { 1, 490_000 }, { 2, 390_000 }, { 3, 290_000 }, { 5, 220_000 } },
+            ["COMPLEX"]   = new() { { 1, 1_170_000 }, { 2, 990_000 }, { 3, 640_000 }, { 5, 560_000 } },
+            ["EXTRA"]     = new() { { 1, 1_170_000 }, { 2, 990_000 }, { 3, 640_000 }, { 5, 560_000 } },
+        };
+
         public StatisticService(
             IStatisticRepository repo,
             IConfiguration config,
@@ -32,66 +41,54 @@ namespace NutvaCms.Application.Services
 
         public Task TrackVisitAsync() => _repo.TrackVisitAsync();
 
-        private decimal CalculateDiscountedPrice(decimal productPrice, string discountLabel)
+        // Helper: Map product name to table key
+        private string GetDiscountKey(string productName)
         {
-            if (string.IsNullOrWhiteSpace(discountLabel) || discountLabel == "0%")
-                return productPrice;
+            if (string.IsNullOrWhiteSpace(productName)) return null;
+            productName = productName.ToUpperInvariant();
+            if (productName.Contains("VIRIS")) return "VIRIS";
+            if (productName.Contains("FERTILIA")) return "FERTILIA";
+            if (productName.Contains("GELMIN")) return "GELMIN";
+            if (productName.Contains("COMPLEX") && productName.Contains("EXTRA")) return "EXTRA"; // Complex Extra or Extra
+            if (productName.Contains("EXTRA")) return "EXTRA";
+            if (productName.Contains("COMPLEX")) return "COMPLEX";
+            return null;
+        }
 
-            var match = Regex.Match(discountLabel, @"\d+");
-            if (!match.Success) return productPrice;
-
-            var percent = decimal.Parse(match.Value);
-            var discounted = productPrice * (1 - percent / 100m);
-            return Math.Round(discounted, 0);
+        // Helper: Given product key and total box count, return price
+        private decimal GetDiscountedPrice(string productKey, int totalBoxes)
+        {
+            if (string.IsNullOrEmpty(productKey) || !DiscountTable.TryGetValue(productKey, out var priceMap))
+                return 0;
+            // Discount logic: 1->1, 2->2, 3/4->3, 5+->5
+            if (totalBoxes <= 1 && priceMap.ContainsKey(1)) return priceMap[1];
+            if (totalBoxes == 2 && priceMap.ContainsKey(2)) return priceMap[2];
+            if ((totalBoxes == 3 || totalBoxes == 4) && priceMap.ContainsKey(3)) return priceMap[3];
+            if (totalBoxes >= 5 && priceMap.ContainsKey(5)) return priceMap[5];
+            // fallback (should never hit if table covers all cases)
+            return priceMap.OrderBy(p => p.Key).First().Value;
         }
 
         public async Task<bool> AddPurchaseRequestAsync(PurchaseRequestDto dto, string lang = "Uz")
         {
             if (dto.Products == null || dto.Products.Count == 0) return false;
 
+            // 1. Calculate total box count
+            int totalBoxCount = dto.Products.Sum(p => p.Quantity);
+
             decimal totalPrice = 0;
             var productEntities = new List<PurchaseRequestProduct>();
             var productNameMap = new Dictionary<Guid, string>();
-            var productDiscounts = new Dictionary<string, decimal[]>()
-    {
-        // ProductName or type : discounts for [1,2,3-4,>=5]
-        { "Virus",    new decimal[] { 0m, 19.77m, 43.02m, 54.65m } },
-        { "Fertilia", new decimal[] { 0m, 19.77m, 43.02m, 54.65m } },
-        { "Gelmin",   new decimal[] { 0m, 20.41m, 40.82m, 55.10m } },
-        { "Complex",  new decimal[] { 0m, 15.38m, 45.30m, 52.14m } },
-        { "Extra",    new decimal[] { 0m, 15.38m, 45.30m, 52.14m } },
-        // Add aliases if your names are not exact
-        { "Complex Extra", new decimal[] { 0m, 15.38m, 45.30m, 52.14m } },
-    };
-
-            // Helper to get discount percent for product
-            decimal GetDiscount(string name, int quantity)
-            {
-                // Normalize name
-                name = name?.ToLowerInvariant() ?? "";
-                string key = productDiscounts.Keys.FirstOrDefault(k => name.Contains(k.ToLowerInvariant()));
-                if (string.IsNullOrEmpty(key)) return 0m;
-
-                var discounts = productDiscounts[key];
-                if (quantity == 1) return discounts[0];
-                if (quantity == 2) return discounts[1];
-                if (quantity == 3 || quantity == 4) return discounts[2];
-                if (quantity >= 5) return discounts[3];
-                return 0m;
-            }
 
             foreach (var prod in dto.Products)
             {
-                // Fetch product DTO in requested language
                 var product = await _productService.GetByIdAsync(prod.ProductId, lang);
                 if (product == null) continue;
 
-                decimal basePrice = Math.Abs(product.Price);
                 string productName = product.Name ?? "Noma'lum mahsulot";
-                decimal discountPercent = GetDiscount(productName, prod.Quantity);
+                string key = GetDiscountKey(productName);
 
-                // Calculate discounted price (round as needed for your use-case)
-                decimal discountedUnitPrice = Math.Round(basePrice * (1 - discountPercent / 100m), 0); // or remove Math.Round if you want decimals
+                decimal discountedUnitPrice = GetDiscountedPrice(key, totalBoxCount);
 
                 decimal itemTotal = discountedUnitPrice * prod.Quantity;
                 totalPrice += itemTotal;
