@@ -17,8 +17,6 @@ namespace NutvaCms.Persistence.DbContexts
         public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
         public DbSet<BlogPostMedia> BlogPostMedia => Set<BlogPostMedia>();
         public DbSet<ChatAdmin> ChatAdmins => Set<ChatAdmin>();
-        public DbSet<ChatSession> ChatSessions => Set<ChatSession>();
-        public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<ProductBoxPrice> ProductBoxPrices => Set<ProductBoxPrice>();
         public DbSet<ContactForm> ContactForms => Set<ContactForm>();
 
@@ -39,11 +37,6 @@ namespace NutvaCms.Persistence.DbContexts
                     v => string.Join(";", v),
                     v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
                 );
-
-            // ChatSession UUID
-            modelBuilder.Entity<ChatSession>()
-                .Property(cs => cs.Id)
-                .HasDefaultValueSql("gen_random_uuid()");
 
             // Translations
             modelBuilder.Entity<Product>().OwnsOne(p => p.En);
