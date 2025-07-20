@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  telegram-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+    environment:                
+      - TELEGRAM_BOT_TOKEN=7995596739:AAGY-em_h7IlFRTCiRbasscUUfGVi3RPxPE
+      - ADMIN_API_SECRET=a5fcd9203f8c1a7492ddee452c7e0190c92a1c10912c1f01cd879e69f54eb61f
+
+  telegram-bot:
+    build:
+      context: ./bot_service
+    environment:
+      - TELEGRAM_BOT_TOKEN=7995596739:AAGY-em_h7IlFRTCiRbasscUUfGVi3RPxPE
+      - ADMIN_API_SECRET=a5fcd9203f8c1a7492ddee452c7e0190c92a1c10912c1f01cd879e69f54eb61f
+      - BACKEND_URL=http://telegram-api:8000
+    depends_on:
+      - telegram-api

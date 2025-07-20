@@ -1,55 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SignalR  chat with ai</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Chat with Support</title>
   <style>
-    #loader {
-      display: none;
-      color: #333;
-      font-style: italic;
-      margin-top: 10px;
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
-    #a {
-      margin-top: 15px;
-      white-space: pre-wrap;
+    #chatUI, #chatSection {
+      display: none;
+    }
+    #messages {
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    #messages div {
+      margin-bottom: 8px;
+    }
+    #messageInput:disabled {
+      background-color: #eee;
+    }
+    .admin {
+      font-weight: bold;
+      color: blue;
+    }
+    .user {
+      font-weight: bold;
+      color: green;
     }
   </style>
 </head>
 <body>
-  <input id="q" placeholder="Enter your question" />
-  <button onclick="send()">Send</button>
-  <div id="loader">⏳ Loading...</div>
-  <pre id="a"></pre>
 
-  <script>
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5000/api/chathub")
-      .build();
+  <h2>Chat with Support</h2>
 
-    connection.on("ReceiveAnswer", (msg) => {
-      document.getElementById("loader").style.display = "none";
-      document.getElementById("a").innerText = msg;
-    });
+  <div id="chatUI">
+    <p><strong>Connected to admin:</strong> <span id="adminName"></span></p>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type your message..." />
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
+  </div>
 
-    connection.start().then(() => {
-      console.log("✅ Connected to SignalR");
-    }).catch(err => {
-      console.error("❌ SignalR Connection failed:", err);
-    });
+  <div id="chatSection">
+    <label>Name:</label><br />
+    <input type="text" id="nameInput" /><br />
+    <label>Phone:</label><br />
+    <input type="text" id="phoneInput" /><br />
+    <button onclick="startSession()">Start Chat</button>
+    <p id="error" style="color:red;"></p>
+  </div>
 
-    function send() {
-      const text = document.getElementById("q").value;
-      if (!text) return;
+<script>
+  let socket;
+  let sessionId;
+  let userName;
+  let adminName;
+  let sessionClosed = false;
+  let greetingSent = false;
 
-      document.getElementById("loader").style.display = "block";
-      document.getElementById("a").innerText = "";
+  document.getElementById("chatSection").style.display = "block";
 
-      connection.invoke("AskQuestion", text).catch(err => {
-        document.getElementById("loader").style.display = "none";
-        console.error("❌ Failed to send:", err);
-      });
+  async function startSession() {
+    const name = document.getElementById("nameInput").value.trim();
+    const phone = document.getElementById("phoneInput").value.trim();
+
+    if (!name || !phone) {
+      document.getElementById("error").textContent = "Name and phone are required.";
+      return;
     }
-  </script>
+
+    const response = await fetch("http://localhost:8000/messages/start_session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_name: name, user_phone: phone })
+    });
+
+    if (!response.ok) {
+      document.getElementById("error").textContent = "No available admin right now.";
+      return;
+    }
+
+    const data = await response.json();
+    sessionId = data.id;
+    userName = name;
+    adminName = data.admin_name;
+    sessionClosed = false;
+    greetingSent = false;
+
+    document.getElementById("chatSection").style.display = "none";
+    document.getElementById("chatUI").style.display = "block";
+    document.getElementById("adminName").textContent = adminName;
+    document.getElementById("messageInput").disabled = false;
+    document.getElementById("sendBtn").disabled = false;
+
+    connectWebSocket();
+  }
+
+  function connectWebSocket() {
+    socket = new WebSocket(`ws://localhost:8000/ws/${sessionId}`);
+
+    socket.onopen = () => {
+      appendMessage("✅ Connected to chat session");
+
+      if (!greetingSent) {
+        const greeting = `Assalomu aleykum, mening ismim ${adminName}. Sizga qanday yordam bera olaman?`;
+
+        // Show greeting message in chat
+        appendMessage("🧾 admin: " + greeting);
+
+        // Save greeting to backend
+        fetch("http://localhost:8000/messages/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: sessionId,
+            sender: "admin",
+            content: greeting
+          })
+        }).catch((err) => {
+          console.error("❌ Failed to save greeting:", err);
+        });
+
+        greetingSent = true;
+      }
+    };
+
+    socket.onmessage = (event) => {
+      const data = event.data;
+      appendMessage("🧾 " + data);
+
+      if (data.includes("Session has ended")) {
+        handleSessionEnded();
+      }
+    };
+
+    socket.onclose = () => {
+      appendMessage("❌ Disconnected from chat");
+    };
+
+    socket.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      appendMessage("⚠️ Error in connection.");
+    };
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const content = input.value.trim();
+
+    if (!content || sessionClosed) return;
+
+    const response = await fetch("http://localhost:8000/messages/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: sessionId,
+        sender: "user",
+        content: content
+      })
+    });
+
+    if (response.status === 400) {
+      appendMessage("❌ Cannot send message. Session has ended.");
+      handleSessionEnded();
+    }
+
+    input.value = "";
+  }
+
+  function handleSessionEnded() {
+    sessionClosed = true;
+    document.getElementById("messageInput").disabled = true;
+    document.getElementById("sendBtn").disabled = true;
+    appendMessage("🔁 Session closed. Returning to start...");
+
+    setTimeout(() => {
+      document.getElementById("chatUI").style.display = "none";
+      document.getElementById("chatSection").style.display = "block";
+      document.getElementById("nameInput").value = "";
+      document.getElementById("phoneInput").value = "";
+      document.getElementById("messages").innerHTML = "";
+    }, 3000);
+  }
+
+  function appendMessage(message) {
+    const msgBox = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.textContent = message;
+    msgBox.appendChild(div);
+    msgBox.scrollTop = msgBox.scrollHeight;
+  }
+</script>
+
 </body>
 </html>
