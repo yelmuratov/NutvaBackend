@@ -374,10 +374,12 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    # Handle session management
+    # Handle session management for status changes
     try:
         session_resp = requests.get(
-            f"{BACKEND_URL}/messages/messages/session", params={"admin_id": admin["id"]}
+            f"{BACKEND_URL}/messages/messages/session", 
+            params={"admin_id": admin["id"]},
+            headers=get_admin_headers()  # Add headers here too for consistency
         )
         session_resp.raise_for_status()
         active_sessions = session_resp.json()
@@ -389,7 +391,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data.startswith("end_"):
         session_id = int(data.replace("end_", ""))
         try:
-            resp = requests.post(f"{BACKEND_URL}/messages/end_session/{session_id}")
+            resp = requests.post(f"{BACKEND_URL}/messages/end_session/{session_id}", headers=get_admin_headers())
             resp.raise_for_status()
 
             try:
@@ -421,11 +423,25 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "⚠️ Avval mavjud sessiyani yakunlang. Keyin holatingizni o'zgartirishingiz mumkin."
         )
     else:
+        # STATUS UPDATE SECTION - THIS IS THE FIX
         is_online = data == "online"
         try:
+            # Create the complete admin update payload
+            # Based on your API schema, you need to send all required fields
+            update_data = {
+                "telegram_id": admin["telegram_id"],  # Required field
+                "name": admin["name"],                # Required field
+                "is_online": is_online,               # The field you want to change
+                "is_busy": admin.get("is_busy", False)  # Include existing is_busy value
+            }
+            
             response = requests.put(
                 f"{BACKEND_URL}/admins/{admin['id']}",
-                json={"is_online": is_online}
+                json=update_data,
+                headers={
+                    "Content-Type": "application/json",  # Explicitly set content type
+                    **get_admin_headers()  # Include admin authentication headers
+                }
             )
             response.raise_for_status()
 
@@ -434,6 +450,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"✅ Holat yangilandi: {'Online 🟢' if is_online else 'Offline 🔴'}",
                 reply_markup=new_markup
             )
+        except requests.exceptions.HTTPError as e:
+            print(f"❌ HTTP Error updating status: {e}")
+            print(f"❌ Response content: {e.response.text if e.response else 'No response'}")
+            await query.edit_message_text("❌ Holatni yangilab bo'lmadi. Server xatosi.")
         except Exception as e:
             print("❌ Holatni yangilashda xatolik:", e)
             await query.edit_message_text("❌ Holatni yangilab bo'lmadi.")
