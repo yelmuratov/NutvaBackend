@@ -59,15 +59,13 @@
   </div>
 
 <script>
+  const BASE_URL = "https://nutva.uz/telegram-api";
   let socket;
   let sessionId;
   let userName;
   let adminName;
   let sessionClosed = false;
   let greetingSent = false;
-
-  const API_URL = "https://nutva.uz";     // ✅ Base URL for FastAPI
-  const WS_URL = "wss://nutva.uz";        // ✅ WebSocket URL (note: wss for secure)
 
   document.getElementById("chatSection").style.display = "block";
 
@@ -80,35 +78,40 @@
       return;
     }
 
-    const response = await fetch(`${API_URL}/messages/start_session`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_name: name, user_phone: phone })
-    });
+    try {
+      const response = await fetch(`${BASE_URL}/messages/start_session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_name: name, user_phone: phone })
+      });
 
-    if (!response.ok) {
-      document.getElementById("error").textContent = "No available admin right now.";
-      return;
+      if (!response.ok) {
+        document.getElementById("error").textContent = "No available admin right now.";
+        return;
+      }
+
+      const data = await response.json();
+      sessionId = data.id;
+      userName = name;
+      adminName = data.admin_name;
+      sessionClosed = false;
+      greetingSent = false;
+
+      document.getElementById("chatSection").style.display = "none";
+      document.getElementById("chatUI").style.display = "block";
+      document.getElementById("adminName").textContent = adminName;
+      document.getElementById("messageInput").disabled = false;
+      document.getElementById("sendBtn").disabled = false;
+
+      connectWebSocket();
+    } catch (err) {
+      document.getElementById("error").textContent = "⚠️ Failed to connect to server.";
+      console.error("❌ startSession error:", err);
     }
-
-    const data = await response.json();
-    sessionId = data.id;
-    userName = name;
-    adminName = data.admin_name;
-    sessionClosed = false;
-    greetingSent = false;
-
-    document.getElementById("chatSection").style.display = "none";
-    document.getElementById("chatUI").style.display = "block";
-    document.getElementById("adminName").textContent = adminName;
-    document.getElementById("messageInput").disabled = false;
-    document.getElementById("sendBtn").disabled = false;
-
-    connectWebSocket();
   }
 
   function connectWebSocket() {
-    socket = new WebSocket(`${WS_URL}/ws/${sessionId}`);
+    socket = new WebSocket(`wss://nutva.uz/telegram-api/ws/${sessionId}`);
 
     socket.onopen = () => {
       appendMessage("✅ Connected to chat session");
@@ -117,7 +120,7 @@
         const greeting = `Assalomu aleykum, mening ismim ${adminName}. Sizga qanday yordam bera olaman?`;
         appendMessage("🧾 admin: " + greeting);
 
-        fetch(`${API_URL}/messages/`, {
+        fetch(`${BASE_URL}/messages/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -136,7 +139,6 @@
     socket.onmessage = (event) => {
       const data = event.data;
       appendMessage("🧾 " + data);
-
       if (data.includes("Session has ended")) {
         handleSessionEnded();
       }
@@ -148,32 +150,36 @@
 
     socket.onerror = (err) => {
       console.error("WebSocket error:", err);
-      appendMessage("⚠️ Error in connection.");
+      appendMessage("⚠️ Connection error.");
     };
   }
 
   async function sendMessage() {
     const input = document.getElementById("messageInput");
     const content = input.value.trim();
-
     if (!content || sessionClosed) return;
 
-    const response = await fetch(`${API_URL}/messages/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        session_id: sessionId,
-        sender: "user",
-        content: content
-      })
-    });
+    try {
+      const response = await fetch(`${BASE_URL}/messages/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          sender: "user",
+          content: content
+        })
+      });
 
-    if (response.status === 400) {
-      appendMessage("❌ Cannot send message. Session has ended.");
-      handleSessionEnded();
+      if (response.status === 400) {
+        appendMessage("❌ Cannot send message. Session has ended.");
+        handleSessionEnded();
+      }
+
+      input.value = "";
+    } catch (err) {
+      appendMessage("⚠️ Failed to send message.");
+      console.error("❌ sendMessage error:", err);
     }
-
-    input.value = "";
   }
 
   function handleSessionEnded() {

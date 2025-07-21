@@ -14,8 +14,12 @@ app = FastAPI(root_path="/telegram-api")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://127.0.0.1:5500",  # Local development
-        "https://nutva.uz"        # Production domain
+        "https://nutvahealth.uz",
+        "https://www.nutvahealth.uz",
+        "https://demo.nutva.uz",
+        "https://www.demo.nutva.uz",
+        "http://localhost:3000",
+        "https://nutva-frontend.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],

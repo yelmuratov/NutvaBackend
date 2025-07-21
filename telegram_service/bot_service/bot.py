@@ -18,7 +18,7 @@ import os
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://telegram-api:8000")
 ADMIN_API_SECRET = os.getenv("ADMIN_API_SECRET", "default_token")
-SUPER_ADMINS = [5766282037, 8003316266]
+SUPER_ADMINS = [5766282037, 8003316266,1456079875]
 
 # Helper function to get headers for admin API requests
 def get_admin_headers():
