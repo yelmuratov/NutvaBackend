@@ -7,13 +7,13 @@ from .connection_manager import manager  # ✅ Avoid circular import
 # Initialize DB tables
 Base.metadata.create_all(bind=engine)
 
-# Create FastAPI app
-app = FastAPI()
+# Create FastAPI app with correct root_path
+app = FastAPI(root_path="/telegram-api")
 
-# ✅ Enable CORS for frontend access (e.g. http://127.0.0.1:5500)
+# Enable CORS for frontend access (adjust allowed origins as needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can limit to ["http://127.0.0.1:5500"] for tighter control
+    allow_origins=["*"],  # You can limit to ["http://your-frontend.com"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,12 +23,12 @@ app.add_middleware(
 app.include_router(admin_routes.router)
 app.include_router(message_routes.router)
 
-# WebSocket endpoint
+# WebSocket endpoint for real-time chat
 @app.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: int):
     await manager.connect(session_id, websocket)
     try:
         while True:
-            await websocket.receive_text()  # Placeholder: Heartbeat or incoming ping
+            await websocket.receive_text()  # Placeholder: Heartbeat or ping
     except WebSocketDisconnect:
         manager.disconnect(session_id, websocket)
