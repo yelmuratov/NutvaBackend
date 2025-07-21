@@ -4,26 +4,29 @@ from .database import Base, engine
 from .routes import admin_routes, message_routes
 from .connection_manager import manager  # ✅ Avoid circular import
 
-# Initialize DB tables
+# ✅ Initialize DB tables
 Base.metadata.create_all(bind=engine)
 
-# Create FastAPI app with correct root_path
+# ✅ Create FastAPI app with correct root_path
 app = FastAPI(root_path="/telegram-api")
 
-# Enable CORS for frontend access (adjust allowed origins as needed)
+# ✅ Enable CORS for frontend access (adjust as needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can limit to ["http://your-frontend.com"]
+    allow_origins=[
+        "http://127.0.0.1:5500",  # Local development
+        "https://nutva.uz"        # Production domain
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Register routers
+# ✅ Register routers
 app.include_router(admin_routes.router)
 app.include_router(message_routes.router)
 
-# WebSocket endpoint for real-time chat
+# ✅ WebSocket endpoint for real-time chat
 @app.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: int):
     await manager.connect(session_id, websocket)
