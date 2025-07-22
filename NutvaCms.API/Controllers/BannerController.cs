@@ -21,7 +21,7 @@ public class BannerController : ControllerBase
     // ✅ Public access - fetch banners with language param
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll([FromQuery] string lang = "en")
+    public async Task<IActionResult> GetAll([FromQuery] string lang = "uz")
     {
         var banners = await _bannerService.GetAllAsync(lang);
         return Ok(banners);
@@ -30,7 +30,7 @@ public class BannerController : ControllerBase
     // ✅ Public access - fetch single banner with language param
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "en")
+    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "uz")
     {
         var banner = await _bannerService.GetByIdAsync(id);
         if (banner is null) return NotFound();

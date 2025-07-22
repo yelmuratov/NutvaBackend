@@ -17,7 +17,7 @@ public class BlogPostController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] string lang = "en")
+    public async Task<IActionResult> GetAll([FromQuery] string lang = "uz")
     {
         var blogs = await _blogPostService.GetAllAsync(lang);
         return Ok(blogs);
@@ -28,7 +28,7 @@ public class BlogPostController : ControllerBase
     /// Get blog post by Id
     /// </summary>
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "en")
+    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "uz")
     {
         var blog = await _blogPostService.GetByIdAsync(id, lang);
         if (blog == null)

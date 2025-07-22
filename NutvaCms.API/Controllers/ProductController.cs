@@ -21,7 +21,7 @@ public class ProductController : ControllerBase
     // ✅ Public access - fetch all products with language param
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll([FromQuery] string lang = "en")
+    public async Task<IActionResult> GetAll([FromQuery] string lang = "uz")
     {
         var products = await _productService.GetAllAsync(lang);
         return Ok(products);
@@ -30,7 +30,7 @@ public class ProductController : ControllerBase
     // ✅ Public access - fetch full product entity by id
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "en")
+    public async Task<IActionResult> GetById(Guid id, [FromQuery] string lang = "uz")
     {
         var productDto = await _productService.GetByIdAsync(id, lang);
         return productDto is null ? NotFound() : Ok(productDto);
