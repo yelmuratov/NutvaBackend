@@ -56,7 +56,6 @@ public class BlogPostService : IBlogPostService
             throw new Exception("Blog post not found");
 
         BlogPostMapper.ApplyUpdateDto(entity, dto);
-        entity.Media.Clear();
 
         await ProcessMediaFiles(dto, entity);
 
