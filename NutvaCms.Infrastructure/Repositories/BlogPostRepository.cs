@@ -35,9 +35,31 @@ public class BlogPostRepository : IBlogPostRepository
 
     public async Task UpdateAsync(BlogPost blogPost)
     {
-        _context.BlogPosts.Update(blogPost);
+        var existing = await _context.BlogPosts
+            .Include(b => b.Media)
+            .FirstOrDefaultAsync(b => b.Id == blogPost.Id);
+
+        if (existing == null)
+            throw new Exception("Blog post not found");
+
+        // Update scalar fields (title, content, etc.)
+        _context.Entry(existing).CurrentValues.SetValues(blogPost);
+
+        // Optional: clear and replace media (you can customize this logic)
+        existing.Media.Clear();
+        foreach (var media in blogPost.Media)
+        {
+            existing.Media.Add(new BlogPostMedia
+            {
+                Id = Guid.NewGuid(), // ensure ID is new
+                Url = media.Url,
+                MediaType = media.MediaType
+            });
+        }
+
         await _context.SaveChangesAsync();
     }
+
 
     public async Task DeleteAsync(BlogPost blogPost)
     {
