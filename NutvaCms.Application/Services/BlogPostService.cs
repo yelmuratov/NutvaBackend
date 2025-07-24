@@ -73,7 +73,9 @@ public class BlogPostService : IBlogPostService
 
     private async Task ProcessMediaFiles(dynamic dto, BlogPost entity)
     {
-        // Image files
+        Console.WriteLine($"ImageFiles count: {((IEnumerable<IFormFile>)dto.ImageFiles)?.Count() ?? 0}");
+
+        // ✅ Image files
         if (dto.ImageFiles != null)
         {
             foreach (var file in dto.ImageFiles)
@@ -82,16 +84,18 @@ public class BlogPostService : IBlogPostService
 
                 ValidateImageFile(file);
                 var fileUrl = await _fileService.UploadSingleAsync(file);
+
                 entity.Media.Add(new BlogPostMedia
                 {
                     Id = Guid.NewGuid(),
+                    BlogPostId = entity.Id,
                     Url = fileUrl,
                     MediaType = MediaType.Image
                 });
             }
         }
 
-        // Video files
+        // ✅ Video files
         if (dto.VideoFiles != null)
         {
             foreach (var file in dto.VideoFiles)
@@ -100,16 +104,18 @@ public class BlogPostService : IBlogPostService
 
                 ValidateVideoFile(file);
                 var fileUrl = await _fileService.UploadSingleAsync(file);
+
                 entity.Media.Add(new BlogPostMedia
                 {
                     Id = Guid.NewGuid(),
+                    BlogPostId = entity.Id,
                     Url = fileUrl,
                     MediaType = MediaType.Video
                 });
             }
         }
 
-        // Image URLs
+        // ✅ Image URLs
         if (dto.ImageUrls != null)
         {
             foreach (var url in ((IEnumerable<string>)dto.ImageUrls).Where(x => !string.IsNullOrWhiteSpace(x)))
@@ -118,13 +124,14 @@ public class BlogPostService : IBlogPostService
                 entity.Media.Add(new BlogPostMedia
                 {
                     Id = Guid.NewGuid(),
+                    BlogPostId = entity.Id,
                     Url = url,
                     MediaType = MediaType.ImageUrl
                 });
             }
         }
 
-        // Video URLs
+        // ✅ Video URLs
         if (dto.VideoUrls != null)
         {
             foreach (var url in ((IEnumerable<string>)dto.VideoUrls).Where(x => !string.IsNullOrWhiteSpace(x)))
@@ -134,6 +141,7 @@ public class BlogPostService : IBlogPostService
                 entity.Media.Add(new BlogPostMedia
                 {
                     Id = Guid.NewGuid(),
+                    BlogPostId = entity.Id,
                     Url = url,
                     MediaType = mediaType
                 });

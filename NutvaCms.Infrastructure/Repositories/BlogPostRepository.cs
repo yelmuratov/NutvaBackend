@@ -46,64 +46,31 @@ public class BlogPostRepository : IBlogPostRepository
         if (existing == null)
             throw new Exception("Blog post not found");
 
-        // ✅ Only update Published status (don't touch translations if they're empty)
         existing.Published = updatedPost.Published;
 
-        // ✅ DON'T update translations if they're empty - keep existing values
-        // CopyTranslation methods are removed for media-only updates
-
-        // ✅ Handle media collection - Clear existing media first
-        if (existing.Media.Any())
-        {
-            existing.Media.Clear();
-        }
-
-        // ✅ Add new media
+        // ✅ Append new media instead of clearing
         if (updatedPost.Media?.Any() == true)
         {
+            var existingUrls = existing.Media.Select(m => m.Url).ToHashSet(); // optional dedup
             foreach (var media in updatedPost.Media)
             {
-                existing.Media.Add(new BlogPostMedia
+                if (!string.IsNullOrWhiteSpace(media.Url) && !existingUrls.Contains(media.Url))
                 {
-                    Id = Guid.NewGuid(),
-                    BlogPostId = existing.Id,
-                    Url = media.Url,
-                    MediaType = media.MediaType
-                });
+                    existing.Media.Add(new BlogPostMedia
+                    {
+                        Id = Guid.NewGuid(),
+                        BlogPostId = existing.Id,
+                        Url = media.Url,
+                        MediaType = media.MediaType
+                    });
+                }
             }
         }
 
-        // ✅ CRITICAL: Force EF to save by updating a timestamp or touching the entity
-        existing.ViewCount = existing.ViewCount; // This forces EF to detect change
-        
-        // ✅ Mark as modified
+        existing.UpdatedAt = DateTime.UtcNow;
         _context.Entry(existing).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();
-    }
-
-    private void CopyTranslation(BlogPostTranslation existing, BlogPostTranslation updated)
-    {
-        if (updated == null || existing == null) return;
-
-        // Only update if the new value is not null or empty
-        if (!string.IsNullOrEmpty(updated.Title))
-            existing.Title = updated.Title;
-        
-        if (!string.IsNullOrEmpty(updated.Subtitle))
-            existing.Subtitle = updated.Subtitle;
-        
-        if (!string.IsNullOrEmpty(updated.Content))
-            existing.Content = updated.Content;
-        
-        if (!string.IsNullOrEmpty(updated.MetaTitle))
-            existing.MetaTitle = updated.MetaTitle;
-        
-        if (!string.IsNullOrEmpty(updated.MetaDescription))
-            existing.MetaDescription = updated.MetaDescription;
-        
-        if (!string.IsNullOrEmpty(updated.MetaKeywords))
-            existing.MetaKeywords = updated.MetaKeywords;
     }
 
     public async Task DeleteAsync(BlogPost blogPost)

@@ -2,142 +2,159 @@ using NutvaCms.Application.DTOs.Blog;
 using NutvaCms.Domain.Entities;
 using NutvaCms.Domain.Enums;
 
-namespace NutvaCms.Application.Mappers.Blog
+namespace NutvaCms.Application.Mappers.Blog;
+
+public static class BlogPostMapper
 {
-    public static class BlogPostMapper
+    public static BlogPostDto ToDto(BlogPost entity)
     {
-        public static BlogPostDto ToDto(BlogPost entity)
+        return new BlogPostDto
         {
-            return new BlogPostDto
+            Id = entity.Id,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+            Published = entity.Published,
+            En = MapTranslationOutput(entity.En),
+            Uz = MapTranslationOutput(entity.Uz),
+            Ru = MapTranslationOutput(entity.Ru),
+            Media = entity.Media.Select(m => new MediaInputDto
             {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt,
-                UpdatedAt = entity.UpdatedAt,
-                Published = entity.Published,
-                En = MapTranslationOutput(entity.En),
-                Uz = MapTranslationOutput(entity.Uz),
-                Ru = MapTranslationOutput(entity.Ru),
-                Media = entity.Media.Select(m => new MediaInputDto
-                {
-                    Url = m.Url,
-                    MediaType = m.MediaType.ToString()
-                }).ToList(),
-                ViewCount = entity.ViewCount // <-- NEW!
-            };
-        }
+                Url = m.Url,
+                MediaType = m.MediaType.ToString()
+            }).ToList(),
+            ViewCount = entity.ViewCount
+        };
+    }
 
-        public static BlogPostSummaryDto ToSummaryDto(BlogPost entity, LanguageCode language)
+    public static BlogPostSummaryDto ToSummaryDto(BlogPost entity, LanguageCode language)
+    {
+        var translation = language switch
         {
-            var translation = language switch
+            LanguageCode.En => entity.En,
+            LanguageCode.Uz => entity.Uz,
+            LanguageCode.Ru => entity.Ru,
+            _ => entity.En
+        };
+
+        return new BlogPostSummaryDto
+        {
+            Id = entity.Id,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+            Published = entity.Published,
+            Title = translation.Title,
+            Subtitle = translation.Subtitle,
+            Content = translation.Content,
+            MetaTitle = translation.MetaTitle,
+            MetaDescription = translation.MetaDescription,
+            MetaKeywords = translation.MetaKeywords,
+            Media = entity.Media.Select(m => new MediaInputDto
             {
-                LanguageCode.En => entity.En,
-                LanguageCode.Uz => entity.Uz,
-                LanguageCode.Ru => entity.Ru,
-                _ => entity.En
-            };
+                Url = m.Url,
+                MediaType = m.MediaType.ToString()
+            }).ToList(),
+            ViewCount = entity.ViewCount
+        };
+    }
 
-            return new BlogPostSummaryDto
-            {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt,
-                UpdatedAt = entity.UpdatedAt,
-                Published = entity.Published,
-                Title = translation.Title,
-                Subtitle = translation.Subtitle,
-                Content = translation.Content,
-                MetaTitle = translation.MetaTitle,
-                MetaDescription = translation.MetaDescription,
-                MetaKeywords = translation.MetaKeywords,
-                Media = entity.Media.Select(m => new MediaInputDto
-                {
-                    Url = m.Url,
-                    MediaType = m.MediaType.ToString()
-                }).ToList(),
-                ViewCount = entity.ViewCount // <-- NEW!
-            };
-        }
-
-        public static BlogPost FromCreateDto(CreateBlogPostDto dto)
+    public static BlogPost FromCreateDto(CreateBlogPostDto dto)
+    {
+        return new BlogPost
         {
-            return new BlogPost
-            {
-                Id = Guid.NewGuid(),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                Published = dto.Published,
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Published = dto.Published,
+            En = MapTranslation(dto.En),
+            Uz = MapTranslation(dto.Uz),
+            Ru = MapTranslation(dto.Ru),
+            Media = new List<BlogPostMedia>() // media added later in service
+        };
+    }
 
-                En = MapTranslation(dto.En),
-                Uz = MapTranslation(dto.Uz),
-                Ru = MapTranslation(dto.Ru),
+    public static void ApplyUpdateDto(BlogPost entity, UpdateBlogPostDto dto)
+    {
+        entity.UpdatedAt = DateTime.UtcNow;
 
-                Media = new List<BlogPostMedia>() // handled in service
-            };
-        }
+        if (dto.Published.HasValue)
+            entity.Published = dto.Published.Value;
 
-        public static void ApplyUpdateDto(BlogPost entity, UpdateBlogPostDto dto)
+        if (dto.En != null)
         {
-            entity.UpdatedAt = DateTime.UtcNow;
+            if (entity.En == null)
+                entity.En = new BlogPostTranslation();
 
-            if (dto.Published.HasValue)
-                entity.Published = dto.Published.Value;
-
-            if (dto.En != null)
-                ApplyTranslationUpdate(entity.En, dto.En);
-
-            if (dto.Uz != null)
-                ApplyTranslationUpdate(entity.Uz, dto.Uz);
-
-            if (dto.Ru != null)
-                ApplyTranslationUpdate(entity.Ru, dto.Ru);
-
-            // Media logic handled in service
+            ApplyTranslationUpdate(entity.En, dto.En);
         }
 
-        private static void ApplyTranslationUpdate(BlogPostTranslation existing, TranslationInputDto dto)
+        if (dto.Uz != null)
         {
-            if (dto.Title != null)
-                existing.Title = dto.Title;
+            if (entity.Uz == null)
+                entity.Uz = new BlogPostTranslation();
 
-            if (dto.Subtitle != null)
-                existing.Subtitle = dto.Subtitle;
-
-            if (dto.Content != null)
-                existing.Content = dto.Content;
-
-            if (dto.MetaTitle != null)
-                existing.MetaTitle = dto.MetaTitle;
-
-            if (dto.MetaDescription != null)
-                existing.MetaDescription = dto.MetaDescription;
-
-            if (dto.MetaKeywords != null)
-                existing.MetaKeywords = dto.MetaKeywords;
+            ApplyTranslationUpdate(entity.Uz, dto.Uz);
         }
 
-        private static BlogPostTranslation MapTranslation(TranslationInputDto dto)
+        if (dto.Ru != null)
         {
-            return new BlogPostTranslation
-            {
-                Title = dto.Title,
-                Subtitle = dto.Subtitle,
-                Content = dto.Content,
-                MetaTitle = dto.MetaTitle,
-                MetaDescription = dto.MetaDescription,
-                MetaKeywords = dto.MetaKeywords
-            };
+            if (entity.Ru == null)
+                entity.Ru = new BlogPostTranslation();
+
+            ApplyTranslationUpdate(entity.Ru, dto.Ru);
         }
 
-        private static TranslationInputDto MapTranslationOutput(BlogPostTranslation translation)
+        // ❌ Do NOT touch entity.Media here — handled in service (ProcessMediaFiles)
+    }
+
+    private static void ApplyTranslationUpdate(BlogPostTranslation existing, TranslationInputDto dto)
+    {
+        if (dto.Title != null)
+            existing.Title = dto.Title;
+
+        if (dto.Subtitle != null)
+            existing.Subtitle = dto.Subtitle;
+
+        if (dto.Content != null)
+            existing.Content = dto.Content;
+
+        if (dto.MetaTitle != null)
+            existing.MetaTitle = dto.MetaTitle;
+
+        if (dto.MetaDescription != null)
+            existing.MetaDescription = dto.MetaDescription;
+
+        if (dto.MetaKeywords != null)
+            existing.MetaKeywords = dto.MetaKeywords;
+    }
+
+    private static BlogPostTranslation MapTranslation(TranslationInputDto dto)
+    {
+        return new BlogPostTranslation
         {
-            return new TranslationInputDto
-            {
-                Title = translation.Title,
-                Subtitle = translation.Subtitle,
-                Content = translation.Content,
-                MetaTitle = translation.MetaTitle,
-                MetaDescription = translation.MetaDescription,
-                MetaKeywords = translation.MetaKeywords
-            };
+            Title = dto.Title,
+            Subtitle = dto.Subtitle,
+            Content = dto.Content,
+            MetaTitle = dto.MetaTitle,
+            MetaDescription = dto.MetaDescription,
+            MetaKeywords = dto.MetaKeywords
+        };
+    }
+
+    private static TranslationInputDto MapTranslationOutput(BlogPostTranslation? translation)
+    {
+        if (translation == null)
+        {
+            return new TranslationInputDto();
         }
+
+        return new TranslationInputDto
+        {
+            Title = translation.Title,
+            Subtitle = translation.Subtitle,
+            Content = translation.Content,
+            MetaTitle = translation.MetaTitle,
+            MetaDescription = translation.MetaDescription,
+            MetaKeywords = translation.MetaKeywords
+        };
     }
 }
