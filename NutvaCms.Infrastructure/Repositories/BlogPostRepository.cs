@@ -45,22 +45,47 @@ public class BlogPostRepository : IBlogPostRepository
         if (existing == null)
             throw new Exception("Blog post not found");
 
+        // ✅ Check if scalar fields (title, published, etc.) are changed
         _context.Entry(existing).CurrentValues.SetValues(updatedPost);
 
-        // Copy media (as before)
-        existing.Media.Clear();
-        foreach (var media in updatedPost.Media)
+        // ✅ Handle translations explicitly
+        CopyTranslation(existing.En, updatedPost.En);
+        CopyTranslation(existing.Uz, updatedPost.Uz);
+        CopyTranslation(existing.Ru, updatedPost.Ru);
+
+        // ✅ Now update media (safely)
+        if (updatedPost.Media?.Any() == true)
         {
-            existing.Media.Add(new BlogPostMedia
+            existing.Media.Clear();
+            foreach (var media in updatedPost.Media)
             {
-                Id = Guid.NewGuid(),
-                Url = media.Url,
-                MediaType = media.MediaType
-            });
+                existing.Media.Add(new BlogPostMedia
+                {
+                    Id = Guid.NewGuid(),
+                    Url = media.Url,
+                    MediaType = media.MediaType
+                });
+            }
+
+            // ✅ Tell EF the collection has changed
+            _context.Entry(existing).Collection(b => b.Media).IsModified = true;
         }
 
         await _context.SaveChangesAsync();
     }
+
+    private void CopyTranslation(BlogPostTranslation existing, BlogPostTranslation updated)
+    {
+        if (updated == null || existing == null) return;
+
+        existing.Title = updated.Title;
+        existing.Subtitle = updated.Subtitle;
+        existing.Content = updated.Content;
+        existing.MetaTitle = updated.MetaTitle;
+        existing.MetaDescription = updated.MetaDescription;
+        existing.MetaKeywords = updated.MetaKeywords;
+    }
+
 
 
     public async Task DeleteAsync(BlogPost blogPost)
