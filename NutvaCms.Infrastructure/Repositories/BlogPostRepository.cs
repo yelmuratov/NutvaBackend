@@ -46,21 +46,11 @@ public class BlogPostRepository : IBlogPostRepository
         if (existing == null)
             throw new Exception("Blog post not found");
 
-        // ✅ FORCE a change to the main entity so EF detects modification
-        // Option 1: If you have UpdatedAt property (recommended)
-        // existing.UpdatedAt = DateTime.UtcNow;
-        
-        // Option 2: If you don't have UpdatedAt, force a change by setting properties to themselves
+        // ✅ Only update Published status (don't touch translations if they're empty)
         existing.Published = updatedPost.Published;
-        existing.ViewCount = existing.ViewCount; // This forces EF to detect change
 
-        // ✅ Update scalar properties
-        _context.Entry(existing).CurrentValues.SetValues(updatedPost);
-
-        // ✅ Handle translations
-        CopyTranslation(existing.En, updatedPost.En);
-        CopyTranslation(existing.Uz, updatedPost.Uz);
-        CopyTranslation(existing.Ru, updatedPost.Ru);
+        // ✅ DON'T update translations if they're empty - keep existing values
+        // CopyTranslation methods are removed for media-only updates
 
         // ✅ Handle media collection - Clear existing media first
         if (existing.Media.Any())
@@ -76,14 +66,17 @@ public class BlogPostRepository : IBlogPostRepository
                 existing.Media.Add(new BlogPostMedia
                 {
                     Id = Guid.NewGuid(),
-                    BlogPostId = existing.Id, // Ensure foreign key is set
+                    BlogPostId = existing.Id,
                     Url = media.Url,
                     MediaType = media.MediaType
                 });
             }
         }
 
-        // ✅ CRITICAL: Force EF to recognize changes
+        // ✅ CRITICAL: Force EF to save by updating a timestamp or touching the entity
+        existing.ViewCount = existing.ViewCount; // This forces EF to detect change
+        
+        // ✅ Mark as modified
         _context.Entry(existing).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();
@@ -93,12 +86,24 @@ public class BlogPostRepository : IBlogPostRepository
     {
         if (updated == null || existing == null) return;
 
-        existing.Title = updated.Title ?? existing.Title;
-        existing.Subtitle = updated.Subtitle ?? existing.Subtitle;
-        existing.Content = updated.Content ?? existing.Content;
-        existing.MetaTitle = updated.MetaTitle ?? existing.MetaTitle;
-        existing.MetaDescription = updated.MetaDescription ?? existing.MetaDescription;
-        existing.MetaKeywords = updated.MetaKeywords ?? existing.MetaKeywords;
+        // Only update if the new value is not null or empty
+        if (!string.IsNullOrEmpty(updated.Title))
+            existing.Title = updated.Title;
+        
+        if (!string.IsNullOrEmpty(updated.Subtitle))
+            existing.Subtitle = updated.Subtitle;
+        
+        if (!string.IsNullOrEmpty(updated.Content))
+            existing.Content = updated.Content;
+        
+        if (!string.IsNullOrEmpty(updated.MetaTitle))
+            existing.MetaTitle = updated.MetaTitle;
+        
+        if (!string.IsNullOrEmpty(updated.MetaDescription))
+            existing.MetaDescription = updated.MetaDescription;
+        
+        if (!string.IsNullOrEmpty(updated.MetaKeywords))
+            existing.MetaKeywords = updated.MetaKeywords;
     }
 
     public async Task DeleteAsync(BlogPost blogPost)
