@@ -20,7 +20,10 @@ public static class BlogPostMapper
             Media = entity.Media.Select(m => new MediaInputDto
             {
                 Url = m.Url,
-                MediaType = m.MediaType.ToString()
+                MediaType = m.MediaType.ToString(),
+                Caption = m.Caption,
+                AltText = m.AltText,
+                // Note: Id is not included in MediaInputDto; add it if needed
             }).ToList(),
             ViewCount = entity.ViewCount
         };
@@ -51,7 +54,9 @@ public static class BlogPostMapper
             Media = entity.Media.Select(m => new MediaInputDto
             {
                 Url = m.Url,
-                MediaType = m.MediaType.ToString()
+                MediaType = m.MediaType.ToString(),
+                Caption = m.Caption,
+                AltText = m.AltText
             }).ToList(),
             ViewCount = entity.ViewCount
         };
@@ -68,7 +73,7 @@ public static class BlogPostMapper
             En = MapTranslation(dto.En),
             Uz = MapTranslation(dto.Uz),
             Ru = MapTranslation(dto.Ru),
-            Media = new List<BlogPostMedia>() // media added later in service
+            Media = new List<BlogPostMedia>() // media now handled separately via BlogMediaController
         };
     }
 
@@ -103,7 +108,7 @@ public static class BlogPostMapper
             ApplyTranslationUpdate(entity.Ru, dto.Ru);
         }
 
-        // ❌ Do NOT touch entity.Media here — handled in service (ProcessMediaFiles)
+        // ✅ Media is now handled separately via BlogMediaController — do not modify here
     }
 
     private static void ApplyTranslationUpdate(BlogPostTranslation existing, TranslationInputDto dto)
